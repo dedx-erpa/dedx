@@ -1,0 +1,12 @@
+&dedxinp
+
+  zzp = 1
+qmass = 1.01e+00
+  ztg = 34
+amass = 7.90e+01
+  mep = 100
+  emin = 1.00e-03
+  emax = 1.00e+02
+  mloss = 24
+  mout = 0
+&end
