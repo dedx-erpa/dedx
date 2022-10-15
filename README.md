@@ -33,7 +33,7 @@ Instructions for running dedx.py:
 --zc= for compound targets, a comma separated z for individual components.  
 --wc= for compund targets, a comma separated weights of components by number.  
 --fc= if zc & wc are not given, fc is the chemical formula of the compound.
-      e.g., Al2O3 for aluminum oxide.
+      e.g., Al2O3 for aluminum oxide.  
 --d=  target density in g/cc  
 --t=  target temperature in eV  
 --od= output directory  
