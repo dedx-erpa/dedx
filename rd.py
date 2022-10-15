@@ -547,6 +547,7 @@ def pnit(ide=0, nde=0):
     clf()
     ry = zeros((nd,nt))
     rz = zeros((nd,nt))
+    rf = zeros((nd,nt))
     a = aa.AA()
     for j in range(nd):
         for i in range(nt):
@@ -554,9 +555,11 @@ def pnit(ide=0, nde=0):
             fi = interpolate.interp1d(r[0], r[2])
             ry[j,i] = fi(1.6)
             rz[j,i] = a.rden('d%dt%02dNi/Ni'%(j,i), header='zb')
+            rf[j,i] = a.rden('d%dt%02dNi/Ni'%(j,i), header='zf')
 
     for j in range(ide, nde+ide):
         plot(rz[j], ry[j], label=r'$\rho=%g$'%ds[j], marker='o')
+        plot(rf[j], ry[j], label=r'$\rho=%g$'%ds[j], marker='o')
     xlabel('Zbar')                   
     ylabel(r'range (mg/cm$^2$)')
     title('Proton in Ni')
@@ -581,6 +584,7 @@ def palt(ide=0, nde=0):
     clf()
     ry = zeros((nd,nt))
     rz = zeros((nd,nt))
+    rf = zeros((nd,nt))
     a = aa.AA()
     for j in range(nd):
         for i in range(nt):
@@ -588,9 +592,11 @@ def palt(ide=0, nde=0):
             fi = interpolate.interp1d(r[0], r[2])
             ry[j,i] = fi(1.6)
             rz[j,i] = a.rden('d%dt%02dAl/Al'%(j,i), header='zb')
+            rf[j,i] = a.rden('d%dt%02dAl/Al'%(j,i), header='zf')
 
     for j in range(ide,nde+ide):
         plot(rz[j], ry[j], label=r'$\rho=%g$'%ds[j], marker='o')
+        plot(rf[j], ry[j], label=r'$\rho=%g$'%ds[j], marker='o')
     xlabel('Zbar')                   
     ylabel(r'range (mg/cm$^2$)')
     title('Proton in Al')
