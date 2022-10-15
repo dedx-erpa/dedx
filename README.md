@@ -1,7 +1,7 @@
-dedx-erpa
+dedx-erpa  
 A package for ion beam stopping power calculations for plasma targets.
 
-Contents:
+Contents:  
 1. dief.py, for computing RPA dielectric functions, and stopping powers of  
    ions in a uniform electron gas. Used to tabulate the stopping numbers on  
    a grid of temperature and density grid.  
@@ -13,7 +13,11 @@ Contents:
 4. t##.dat, a set of tables for proton in uniform electron gas stopping powers  
    calculated with dief.py. used by dedx.py and dedx.f to compute stopping  
    powers for arbitrary electron density distributions.  
-5. various utility and example scripts.  
+5. various utility and example scripts.
+6. data/, proton in cold targets for Z=1-92 and select compounds. data
+   for each material is in the sub-directory named after its chemical symbol.
+   dedx.dat contains the dedx and range. dedx.pdf is a plot of the dedx vs E,
+   and range.pdf is a plot of range vs E.  
 
 Instructions for running dedx.py:  
 
@@ -28,7 +32,8 @@ Instructions for running dedx.py:
 --zt= target z  
 --zc= for compound targets, a comma separated z for individual components.  
 --wc= for compund targets, a comma separated weights of components by number.  
---fc= if zc & wc are not given, fc is the chemical formula of the compound.  
+--fc= if zc & wc are not given, fc is the chemical formula of the compound.
+      e.g., Al2O3 for aluminum oxide.
 --d=  target density in g/cc  
 --t=  target temperature in eV  
 --od= output directory  
@@ -40,10 +45,10 @@ Instructions for running dedx.py:
 	model. so no frho needs to be given. but if a density file already  
 	exists, it can be used by specifying --aa=0  
 --aa= run average atom mode.  
-      2, generate electron density distribution by running aa model.  
-      1, aa has been run before, just prepare the density distribution using  
-         the data from the previous aa run.  
-      0, the density distribution file is already present in the output dir.  
+       2, generate electron density distribution by running aa model.  
+       1, aa has been run before, just prepare the density distribution using  
+          the data from the previous aa run.  
+       0, the density distribution file is already present in the output dir.  
 --mloss= the mode for computing the stopping power.  
        0, use the fitting formula from the RPA model of Wang et al.  
           PoP, vol. 5, no. 8, pp. 2977, 1998  
@@ -52,11 +57,11 @@ Instructions for running dedx.py:
        3, without LFC, but with strong binary collision correction  
        4, with LFC and strong binary collision corrections.  
        11/12/13/14, same as 1/2/3/4, with the addition of Barkas term.  
-       21/22/23/24, same as 1/2/3/4, with the addition of Barkas and Bloch
-       terms by default, the bound electron correction term is included.  
+       21/22/23/24, same as 1/2/3/4, with the addition of Barkas and
+       Bloch terms.  
+       By default, the bound electron correction term is included.  
        if mloss has a third digit of 1, the bound electron correction
-       is omitted
-
+       is omitted  
        The most sensible mode for common calculations would be mloss=24, which  
        is the default if mloss is not specified.
 
