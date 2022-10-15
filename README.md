@@ -14,9 +14,9 @@ Contents:
    calculated with dief.py. used by dedx.py and dedx.f to compute stopping  
    powers for arbitrary electron density distributions.  
 5. various utility and example scripts.
-6. data/, proton in cold targets for Z=1-92 and select compounds. data
-   for each material is in the sub-directory named after its chemical symbol.
-   dedx.dat contains the dedx and range. dedx.pdf is a plot of the dedx vs E,
+6. data/, proton in cold targets for Z=1-92 and select compounds. data  
+   for each material is in the sub-directory named after its chemical symbol.  
+   dedx.dat contains the dedx and range. dedx.pdf is a plot of the dedx vs E,  
    and range.pdf is a plot of range vs E.  
 
 Instructions for running dedx.py:  
@@ -74,10 +74,9 @@ python dedx.py --zt=13 --aa=2 --d=2.7 --t=0.025 --od=ColdAl
 python dedx.py --zc='1,6,8' --wc='4,5,2' --aa=2 --d=1.35 --t=10.0 --od=MylarWDM  
 
 3. This is equivalent to example 2.  
-python dedx.py --fc=H4C5O2 --aa=2 --d=1.35 --t=10.0 --od=MylarWD  
+python dedx.py --fc=H4C5O2 --aa=2 --d=1.35 --t=10.0 --od=MylarWDM  
 
-After running dedx.py, the output directory contains dedx.dat file.  
-
+After running dedx.py, the output directory contains dedx.dat file.   
 the headers starts with '#', and list:  
  nzt = number of constituent atoms  
   zt = target atom z array,  
