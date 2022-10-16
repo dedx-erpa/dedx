@@ -408,7 +408,7 @@ def pden(z):
         plot(r[0], r[1], marker='.')
     xlabel('radius (a.u.)')
     ylabel(r'$4\pi r^2\rho(r)$ (a.u.)')
-    
+
 def gen_den_plots():    
     zs = [3, 4, 5, 6, 7, 8, 10, 13, 14, 18, 22,
           26, 28, 29, 32, 36, 42, 47,

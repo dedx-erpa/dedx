@@ -36,6 +36,8 @@ def run1z(z):
     run1zp(z, -1)
     
 def run_loop(xs):
+    if xs is None:
+        return
     for a in xs:
         run1zp(a[0], a[1])
         
