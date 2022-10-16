@@ -409,6 +409,30 @@ def pden(z):
     xlabel('radius (a.u.)')
     ylabel(r'$4\pi r^2\rho(r)$ (a.u.)')
 
+def pcompden(s, rs=1):
+    plt.rcParams.update({'font.size':15})
+    plt.subplots_adjust(bottom=0.15,top=0.9,left=0.15,right=0.95)
+    od = 'data/%s'%s
+    h = rdedx(od, header='')
+    zt = h['zt']
+    clf()
+    for iz in range(len(zt)):
+        z = int(zt[iz])
+        r = rden(od+'/'+fac.ATOMICSYMBOL[z])
+        x = r[0]
+        if rs == 1:
+            x /= r[0][-1]
+        d = r[1]/(4*pi*r[0]**2)
+        semilogy(x, d, label=fac.ATOMICSYMBOL[z])
+
+    legend()
+    if rs == 1:
+        xlabel('normalized radius')
+    else:
+        xlabel('radius')
+    ylabel(r'$\rho(r)$')
+    title(s)
+    
 def gen_den_plots():    
     zs = [3, 4, 5, 6, 7, 8, 10, 13, 14, 18, 22,
           26, 28, 29, 32, 36, 42, 47,
