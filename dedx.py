@@ -109,13 +109,10 @@ if opts.zc != '':
     zc = [int(x) for x in opts.zc.split(',')]
     wc = [float(x) for x in opts.wc.split(',')]
 elif opts.fc != '':
-    zc,wc = rd.zwc(opts.fc)
+    zc,wc = aa.zw4c(opts.fc)
 else:
     zc = []
     wc = []    
-
-if opts.d <= 0:
-    opts.d = d4z(opts.zt)
     
 if opts.aa > 1:
     t0 = time.time()
@@ -123,12 +120,14 @@ if opts.aa > 1:
         print('running avgatom zc=%s wc=%s fc=%s d=%g t=%g'%(opts.zc, opts.wc, opts.fc, opts.d, opts.t))
         a = aa.AA(z=zc, d=opts.d, t=opts.t, wm=wc, dd=opts.od, bqp=opts.bqp)
         a.run()
+        t1 = time.time()
+        print('done avgatom zc=%s wc=%s fc=%s d=%g t=%g in %10.3E'%(opts.zc, opts.wc, opts.fc, opts.d, opts.t,(t1-t0)))
     else:
         print('running avgatom z=%d d=%g t=%g ...'%(opts.zt,opts.d,opts.t))
         a = aa.AA(z=opts.zt, d=opts.d, t=opts.t, dd=opts.od, bqp=opts.bqp)
         a.run()
-    t1 = time.time()
-    print('done in %10.3E s'%(t1-t0))
+        t1 = time.time()
+        print('done avgatom z=%d d=%g t=%g in %10.3E'%(opts.zt, opts.d, opts.t,(t1-t0)))
     
 if opts.aa > 0:
     if opts.aa == 1:

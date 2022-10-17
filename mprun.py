@@ -2,6 +2,7 @@ import os
 import numpy
 from multiprocessing import Pool
 from pfac import fac
+from pfac import aa as aam
 import rd
 from dts import *
 
@@ -11,7 +12,7 @@ def run_dedx(z, d, t, aa=2, zp=1,
         a = fac.ATOMICSYMBOL[z]
     else:
         a = z
-        zc,wc = rd.zwc(z)
+        zc,wc = aam.zw4c(z)
         if len(zc) == 1:
             z = zc[0]
             a = fac.ATOMICSYMBOL[z]

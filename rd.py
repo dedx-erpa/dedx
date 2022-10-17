@@ -6,29 +6,6 @@ from scipy import interpolate, integrate
 import os, string
 import dts
 
-def zwc(s):
-    a = fac.ATOMICSYMBOL
-    s = s+'X'
-    n = len(s)
-    zs = []
-    ws = []
-    i = 0
-    j = 0
-    for k in range(i+1,n):
-        if j == i and s[k].isdigit():
-            j = k
-            continue
-        if s[k].isupper():
-            if j == i:
-                zs.append(a.index(s[i:k]))
-                ws.append(1.0)
-            else:
-                zs.append(a.index(s[i:j]))
-                ws.append(float(s[j:k]))
-            i = k
-            j = k
-    return zs,ws
-
 def rden(od):
     f = '%s/rho.functions'%od
     d = loadtxt(f, unpack=1, max_rows=1)
@@ -398,7 +375,7 @@ def gen_plots(zs = dts.ss, mrc=0):
                 savefig('%s/rdedx%d.pdf'%(od,m))
         prange(z)
         
-def pden(z):
+def pden0(z):
     od = 'data/%s'%fac.ATOMICSYMBOL[z]
     d = rden(od)
     clf()
@@ -409,21 +386,29 @@ def pden(z):
     xlabel('radius (a.u.)')
     ylabel(r'$4\pi r^2\rho(r)$ (a.u.)')
 
-def pcompden(s, rs=1):
+def pden(s, rs=1, ys=1):
     plt.rcParams.update({'font.size':15})
     plt.subplots_adjust(bottom=0.15,top=0.9,left=0.15,right=0.95)
     od = 'data/%s'%s
     h = rdedx(od, header='')
     zt = h['zt']
     clf()
+        
     for iz in range(len(zt)):
         z = int(zt[iz])
-        r = rden(od+'/'+fac.ATOMICSYMBOL[z])
-        x = r[0]
+        if (h['nzt'] == 1):
+            r = rden(od)
+        else:
+            r = rden(od+'/'+fac.ATOMICSYMBOL[z])
+        x = r[0].copy()
+        d = r[1].copy()
+        if ys == 1:
+            d = r[1]/(4*pi*x**2)
         if rs == 1:
-            x /= r[0][-1]
-        d = r[1]/(4*pi*r[0]**2)
-        semilogy(x, d, label=fac.ATOMICSYMBOL[z])
+            x /= x[-1]
+        plot(x, d, label=fac.ATOMICSYMBOL[z])
+        if (ys == 1):
+            yscale('log')
 
     legend()
     if rs == 1:

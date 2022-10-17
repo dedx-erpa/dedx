@@ -118,3 +118,9 @@ C2F4		2.2
 C8H8		1.005
 MgCl2		2.325
 AuCl		7.6
+GeO2		4.25
+MnSO4		3.25
+CoN2O6		2.49
+CoCl2		3.36
+NiS		5.5
+NaCl		2.17
