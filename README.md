@@ -35,7 +35,11 @@ Instructions for running dedx.py:
 --fc= if zc & wc are not given, fc is the chemical formula of the compound.
       e.g., Al2O3 for aluminum oxide.  
 --d=  target density in g/cc  
---t=  target temperature in eV  
+--t=  target temperature in eV
+--taa= min temperature used for running average atom model. default 0.5 eV.  
+       run aa model with very low temperatures can cause convergence problems.  
+       electron density distribution of 0.5 eV aa model is practically the same  
+       as the room temperature case of 0.025 eV.
 --od= output directory  
 --emin= minimum projectile energy in MeV, default 1e-3  
 --emax= maximum projectile energy in MeV, default 100.0  

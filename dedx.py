@@ -51,6 +51,8 @@ p.add_option('--d', dest='d', type='float',
              default=0.0, help='density in g/cc')
 p.add_option('--t', dest='t', type='float',
              default=1.0, help='temperature in eV')
+p.add_option('--taa', dest='taa', type='float',
+             default=0.5, help='min temp in eV to run avg atom model')
 p.add_option('--frho', dest='frho', type='string',
              default='', help='rho file to copy')
 p.add_option('--od', dest='od', type='string',
@@ -79,6 +81,10 @@ p.add_option('--dedx', dest='dedx', type='string',
              default='./dedx', help='dedx executable')
 p.add_option('--mout', dest='mout', type='int',
              default=0, help='output radial dist. of dedx')
+p.add_option('--sc', dest='sc', type='int',
+             default=0, help='sc param of aa.AA')
+p.add_option('--pmi', dest='pmi', type='int',
+             default=1, help='pmi param of aa.AA')
 
 opts,args = p.parse_args()
 
@@ -116,18 +122,19 @@ else:
     
 if opts.aa > 1:
     t0 = time.time()
+    taa = max(opts.t, opts.taa)
     if len(zc) > 0:
-        print('running avgatom zc=%s wc=%s fc=%s d=%g t=%g'%(opts.zc, opts.wc, opts.fc, opts.d, opts.t))
-        a = aa.AA(z=zc, d=opts.d, t=opts.t, wm=wc, dd=opts.od, bqp=opts.bqp)
+        print('running avgatom zc=%s wc=%s fc=%s d=%g t=%g'%(opts.zc, opts.wc, opts.fc, opts.d, taa))
+        a = aa.AA(z=zc, d=opts.d, t=taa, wm=wc, dd=opts.od, bqp=opts.bqp, sc=opts.sc, pmi=opts.pmi)
         a.run()
         t1 = time.time()
-        print('done avgatom zc=%s wc=%s fc=%s d=%g t=%g in %10.3E'%(opts.zc, opts.wc, opts.fc, opts.d, opts.t,(t1-t0)))
+        print('done avgatom zc=%s wc=%s fc=%s d=%g t=%g in %10.3E'%(opts.zc, opts.wc, opts.fc, opts.d, taa,(t1-t0)))
     else:
-        print('running avgatom z=%d d=%g t=%g ...'%(opts.zt,opts.d,opts.t))
-        a = aa.AA(z=opts.zt, d=opts.d, t=opts.t, dd=opts.od, bqp=opts.bqp)
+        print('running avgatom z=%d d=%g t=%g ...'%(opts.zt,opts.d,taa))
+        a = aa.AA(z=opts.zt, d=opts.d, t=taa, dd=opts.od, bqp=opts.bqp, sc=opts.sc, pmi=opts.pmi)
         a.run()
         t1 = time.time()
-        print('done avgatom z=%d d=%g t=%g in %10.3E'%(opts.zt, opts.d, opts.t,(t1-t0)))
+        print('done avgatom z=%d d=%g t=%g in %10.3E'%(opts.zt, opts.d, taa,(t1-t0)))
     
 if opts.aa > 0:
     if opts.aa == 1:

@@ -124,3 +124,9 @@ CoN2O6		2.49
 CoCl2		3.36
 NiS		5.5
 NaCl		2.17
+TiO2		4.23
+KCl		2.16
+SiC		3.21
+Eu2O3		7.42
+NiSi		5.66
+Er2O3		8.64

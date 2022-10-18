@@ -279,7 +279,10 @@ def cmp_dedx(zt, xsc='e', dpass=1, atima=1, pstar=1):
         a = fac.ATOMICSYMBOL[zt]
     else:
         a = zt
-        zt = 0
+        try:
+            zt = fac.ATOMICSYMBOL.index(a)
+        except:
+            zt = 0
     d = 'data/%s'%a
     lab = 'eRPA'
     y = rdedx(d)
@@ -330,6 +333,8 @@ def cmp_dedx(zt, xsc='e', dpass=1, atima=1, pstar=1):
     fds.append('h'+a.lower()+'.txt')
     fds.append('H'+a+'.txt')
     fds.append('H'+a.upper()+'.txt')
+    if a == 'H4C5O2':
+        fds.append('MYLAR.txt')
     for fd in fds:
         try:
             if zt == 40:
@@ -360,6 +365,7 @@ def cmp_dedx(zt, xsc='e', dpass=1, atima=1, pstar=1):
 def gen_plots(zs = dts.ss, mrc=0):
     for z in zs:
         print(z)
+        prange(z)
         cmp_dedx(z, atima=0, dpass=0)
         if type(z) == type(0):
             od = 'data/%s'%(fac.ATOMICSYMBOL[z])
@@ -373,7 +379,6 @@ def gen_plots(zs = dts.ss, mrc=0):
                 plot_rcdedx(d, r, m)
                 savefig('%s/rdedx%d.png'%(od,m))
                 savefig('%s/rdedx%d.pdf'%(od,m))
-        prange(z)
         
 def pden0(z):
     od = 'data/%s'%fac.ATOMICSYMBOL[z]
@@ -386,14 +391,13 @@ def pden0(z):
     xlabel('radius (a.u.)')
     ylabel(r'$4\pi r^2\rho(r)$ (a.u.)')
 
-def pden(s, rs=1, ys=1):
+def pden(s, rs=1, ys=1, dd='data'):
     plt.rcParams.update({'font.size':15})
     plt.subplots_adjust(bottom=0.15,top=0.9,left=0.15,right=0.95)
-    od = 'data/%s'%s
+    od = '%s/%s'%(dd,s)
     h = rdedx(od, header='')
     zt = h['zt']
     clf()
-        
     for iz in range(len(zt)):
         z = int(zt[iz])
         if (h['nzt'] == 1):
