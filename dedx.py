@@ -84,7 +84,7 @@ p.add_option('--mout', dest='mout', type='int',
 p.add_option('--sc', dest='sc', type='int',
              default=0, help='sc param of aa.AA')
 p.add_option('--pmi', dest='pmi', type='int',
-             default=1, help='pmi param of aa.AA')
+             default=0, help='pmi param of aa.AA')
 
 opts,args = p.parse_args()
 

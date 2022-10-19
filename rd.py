@@ -379,6 +379,7 @@ def gen_plots(zs = dts.ss, mrc=0):
                 plot_rcdedx(d, r, m)
                 savefig('%s/rdedx%d.png'%(od,m))
                 savefig('%s/rdedx%d.pdf'%(od,m))
+        pause(0.25)
         
 def pden0(z):
     od = 'data/%s'%fac.ATOMICSYMBOL[z]

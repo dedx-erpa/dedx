@@ -21,4 +21,4 @@ rmin = 7.5e-05
 dedx = ./dedx
 mout = 0
 sc = 0
-pmi = 1
+pmi = 0
