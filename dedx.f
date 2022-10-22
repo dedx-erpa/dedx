@@ -13,7 +13,6 @@ c ******************************************************************** c
       program devsdx
       implicit real*8 (a-h,o-z)
       parameter (nrx=850, npx=1500, nex=100, nre=10)
-      parameter (qea = 0.75, qei = 0.01)
       
       character string*80, odir*80, floss*80, floss0*80
       
@@ -23,18 +22,28 @@ c ******************************************************************** c
       dimension rdedx(nre,nrx), cdedx(nre,nrx), rage(npx)
       dimension a(10), fits(nex), temp(50), deni(50)
 
-      common /lhtab/eione(50),rl(30),cl(50,30),cl0(50,30),
-     +     neee,nrho,xte,xte0
+      common /lhtab/eione(50),epk(30),rl(30),cl(50,30),cl0(50,30),
+     +     neee,nrho,xte,xte0,xepa,xepb,xepc,xepd
       common / hlbdy / elow, ehig, epeak
       common /rrang/range(50,50,200)
 
+      data xepa /0.904/
+      data xepb /1.104/
+      data xepc /-1.376/
+      data xepd /13.858/      
+      
       namelist /dedxinp/zzp, qmass, ztg, amass, mep, emin, emax,
-     +     mloss, mout
+     +     mloss, mout, dinp, tinp, epa,epb,epc,epd
 
 c                                                                      c
 c ************************* START THE EXECUTION ********************** c
 c                                                                      c
 
+      epa = -1e11
+      epb = -1e11
+      epc = -1e11
+      epd = -1e11
+      
       Pi = 3.1415926
 c     proton mass in g
       pmass = 1.672623100e-24
@@ -89,6 +98,18 @@ c
       close(17, status='delete')
  9999 format(a)
 
+      if (epa .gt. -1e10) then
+         xepa = epa
+      endif
+      if (epb .gt. -1e10) then
+         xepb = epb
+      endif
+      if (epc .gt. -1e10) then
+         xepc = epc
+      endif
+      if (epd .gt. -1e10) then
+         xepd = epd
+      endif
       
       acoef = 6.023d20/amass
       bcoef = acoef*1d-21
@@ -103,9 +124,9 @@ c
       mre = mep/nre
       if(mep.gt.1) then
          de = log10(emax/emin)/(mep-1)
-         do 2 j=2,mep
+         do  j=2,mep
             ee(j) = ee(j-1)*10**de
- 2       continue
+         enddo
       endif
       do j=1,mep
          elog(j) = dlog(ee(j))
@@ -116,17 +137,23 @@ c ... read in temperature and density points
 c
 
       read(2,*) kzz,nmt, nmd
-      do 4 it=1,nmt
-      do 3 id=1,nmd
-         read(2,*) temp(it), deni(id)      
-         read(2,*) nrd,h,rs
-         read(2,*) (r(i),  i=1,nrd)
-         read(2,*) (dr(i), i=1,nrd)
-         read(2,*) (rho0(i),i=1,nrd)
-         read(2,*) (rhof(i),i=1,nrd)
-         read(2,*) (rhoe(i),i=1,nrd)
- 3    continue
- 4    continue
+      do it=1,nmt
+         do id=1,nmd
+            read(2,*) temp(it), deni(id)
+            if (tinp .gt. 0) then
+               temp(it) = tinp
+            endif
+            if (dinp .gt. 0) then
+               deni(id) = dinp
+            endif
+            read(2,*) nrd,h,rs
+            read(2,*) (r(i),  i=1,nrd)
+            read(2,*) (dr(i), i=1,nrd)
+            read(2,*) (rho0(i),i=1,nrd)
+            read(2,*) (rhof(i),i=1,nrd)
+            read(2,*) (rhoe(i),i=1,nrd)
+         enddo
+      enddo
       rewind (2)
       read(2,*) kzz, nmt, nmd
       if(abs(kzz-ztg) .gt. 0.1) stop '!!! rho.function incorrect !!!'      
@@ -179,7 +206,7 @@ c 2001 format('#'/'#   stopping power for (Zp) ', i2,' in (Zt) ',i2)
 c
 c ... loop over termperatures
 c ---------------------------
-      do 502 it=1,nmt
+      do it=1,nmt
          ttt = temp(it)
 c         write(13,1006) ttt
 c 1006    format(/2x,'T = ', f8.1, ' eV')
@@ -198,8 +225,9 @@ c ----------------------------------------
          if (mloss .ge. 100) then
             icb = 0
             mloss = mod(mloss, 100)
+            mloss1 = mod(mloss, 10)
          endif
-         if (mloss .gt. 0) then
+         if (mloss1 .gt. 0) then
             xte0 = -1d31
             if (floss0(1:len0) .ne. floss(1:len2)) then
                open(unit=3, file=floss0(1:len0), status='old')
@@ -248,7 +276,7 @@ c ----------------------------------------
                   enddo
                endif
             endif            
-         else if (mloss .eq. 0) then
+         else if (mloss1 .eq. 0) then
             call lindh(ttt)
          endif
 c         do k = 1, neee
@@ -272,7 +300,7 @@ c         enddo
 c
 c .... do loop over densities
 c ----------------------------
-         do 501 id=1,nmd
+         do id=1,nmd
 c
 c ... readin radial mesh and electron charge dnesity function
 c ------------------------------------------------------------
@@ -283,34 +311,34 @@ c ------------------------------------------------------------
             read(2,*) (rho0(i),i=1,nrd)
             read(2,*) (rhof(i),i=1,nrd)
             read(2,*) (rhoe(i),i=1,nrd)
-            chkt = abs(t-temp(it))
-            chkd = abs(d-deni(id))
-            if(chkt.gt.1.0e-3 .or. chkd.gt.1.0e-3) 
-     :      stop 'input data not match !!!'
+c            chkt = abs(t-temp(it))
+c            chkd = abs(d-deni(id))
+c            if(chkt.gt.1.0e-3 .or. chkd.gt.1.0e-3) 
+c     :      stop 'input data not match !!!'
 
-            do 5 i=1,nrd
+            do i=1,nrd
                if(rho0(i).lt.0) rho0(i) = abs(rho0(i))
                if(r(i).ge.rs) then
                   nrd = i
                   rho0(i) = rho0(i-1)*(r(i)/r(i-1))**2
                   goto 6
                endif
- 5          continue
+            enddo
  6          continue
  
 c
 c .... computing Zbar 
 c ----------------------------------
             
-            do 1101 i=1,nrd
+            do i=1,nrd
                rho(i) = rhof(i)*dr(i)*r(i)
- 1101       continue
+            enddo
             call intgrl(nrd,+h,rho,sum,rh1)
             zbar=cubint(rs,nrd,r,sum,nrd)
             write(14,1102) rs
  1102       format('#    rs = ',e15.8)
 c            write(*,*) 'zb=', zbar, nrd, r(nrd), rs, rhof(nrd)
-            do 100 ie=1,mep
+            do ie=1,mep
                eion = ee(ie)
                vion = sqrt(2*eion*1.6021917e-6/pmass)
 c
@@ -327,52 +355,26 @@ c
 c ... compute rho(r)*L(rho,v)
 c     ---------------------------
                qe0 = rhoe(nrd)/(4*pi*r(nrd)**2)
-               ir0 = nrd
-               ir1 = nrd
-               zzr0 = 0.75
-               zzr = rho0(1)*r(1)/3
-               zz0 = rho0(1)
-               qm = rho0(1)/(4*pi*r(1)**2)
-               do k=2,nrd
-                  zz1 = rho0(k)
-                  q = zz1/(4*pi*r(k)**2)
-                  if (q .gt. qm) qm = q
-                  zzr0 = zzr
-                  zzr = zzr + 0.5*(zz1+zz0)*(r(k)-r(k-1))
-                  zz0 = zz1
-                  if (zzr .ge. 0.75*ztg) then
-                     ir0 = k-1
-                     ir1 = k                     
-                     exit
-                  endif
-               enddo
-               rms = r(ir0) + (0.75*ztg-zzr0)*(r(ir1)-r(ir0))/(zzr-zzr0)
-               qs = 6.748333e24*0.75*ztg/(4*pi*rms**3/3)
-               zf = rho0(nrd)/(4*pi*r(nrd)**2)/qm
-               zf = min(1.0, zf)
-               zf = (1-zf)**4
-               do 10 k=1,nrd
+               do k=1,nrd
                   rho(k) = rho0(k)
                   fpr = 4*pi*r(k)**2
                   q = 6.748333e24*(rho(k))/fpr
                   if (icb .gt. 0) then
-                     qe1 = qe0*(r(k)/r(nrd))**qei
-                     qe = rhoe(k)/fpr-qe1
+                     qe = rhoe(k)/fpr-qe0
                      if (qe .gt. 0) then
-                        qe = 6.748333e24*qea*qe
+                        qe = 6.748333e24*xepa*qe
                      else
                         qe = 0d0
                      endif
                   else
                      qe = 0d0
-                     qe1 = 0d0
                   endif
                   qf = 6.748333e24*rhof(k)/fpr
-                  xcl = vlhfit(zeff, eion, q+qe, qe, qs, zf, ttt, mloss)
-                  ycl = vlhfit(zeff, eion, qf, 0d0, qs, zf, ttt, mloss)
+                  xcl = vlhfit(eion, q, qe, qf, ttt, zeff, mloss)
+c                  ycl = vlhfit(eion, qf, 0.0, qf, ttt, zeff, mloss)
                   rhol(k) = rho(k)*xcl*r(k)*dr(k)
-                  rhofl(k) = rhof(k)*ycl*r(k)*dr(k)
- 10            continue
+c                  rhofl(k) = rhof(k)*ycl*r(k)*dr(k)
+               enddo
 
 c
 c ... do integration
@@ -392,7 +394,7 @@ c               call intgrl(nrd,+h,rhofl,sum,rh1)
 c               sumitg = cubint(rs,nrd,r,sum,nrd)
 c               fdedx(ie) = 4.58284e17*(zeff/vion)**2 * sumitg            
 
- 100        continue
+            enddo
 
             rh2 = 2*fdedx(1)
             call intgrl(mep,+he,fdedx,rage,rh2)
@@ -404,7 +406,7 @@ c            write(*,*) 'dexfit:', it, id
 c            call dexfit(it,id,zzp, ztg, mep, ee, dedx,
 c     :                                                a)
 
-            do 30 i=1,mep
+            do i=1,mep
                eion = ee(i)
                if(eion.le.elow) then
                   fits(i) = a(1)*eion**a(2)
@@ -418,7 +420,7 @@ c     :                                                a)
                   fits(i) = (a(8)/eion)*log(1.0+a(9)/eion+a(10)*eion)
                endif
                fits(i) = 0.0
- 30         continue
+            enddo
 
 c
 c .... output (1): to table for BUCKY
@@ -445,10 +447,10 @@ c 902        format('#'/'#  T = ',1p,e10.4,2x,'rho = ',1p,e10.4,0p,
 c     :              '  zbar = ',f5.2)
             write(14,2115)
  2115       format('#',3x,'E/AMU (MeV)',12x,'dEdX',11x,'range') 
-            do 31 i=1,mep
+            do i=1,mep
                dedxt(it,id,i) = dedx(i)
                write(14,903) ee(i), dedx(i), rage(i)
- 31         continue
+            enddo
 c            write(14,904)
  903        format(e15.8,1x,e15.8,1x,e15.8)
 c 904        format('A')
@@ -465,8 +467,8 @@ c 904        format('A')
 
 c            call getrange(kzz,it,id,mep,ee,elog,dedx)
 
- 501     continue
- 502  continue
+         enddo
+      enddo
 
 c      do 550 id=1,nmd
 c      do 503 it=1,nmt
@@ -518,10 +520,6 @@ c     3303 format('c      log10(rho) mesh (#/cm**3)')
       end
 
 
-
-
-
-
 c
 c ******************************************************************* c
 c                                                                     c
@@ -530,63 +528,17 @@ c   This routine is used for fitting Lindhard's stopping number in
 c   the density range of 1.0e21 -- 1.0e33 (cm-3) and the energy 
 c   range of 100 -- 5.0e-4 (MeV).
 c
-      function vlhfit(ze,e0,r0,re,rf,zf,te,md)
+      function vlhfit(e0,r0,re,rf,te,ze,md)
       implicit real*8 (a-h,o-z)
-      common /lhtab/etab(50),rtab(30),vlhtab(50,30),vlhtab0(50,30),
-     +     neee,nrho,xte,xte0
+      common /lhtab/etab(50),epk(30),rtab(30),
+     +     vlhtab(50,30),vlhtab0(50,30),
+     +     neee,nrho,xte,xte0,xepa,xepb,xepc,xepd
 
       ex = e0
-      yb = 0d0
       rx = log10(max(1d-10,r0))
-      if (r0 .gt. 0 .and.
-     +     (md .lt. 0 .or. (md .ge. 10 .and. md .lt. 30))) then
-         v2 = (2*e0*1e6/27.2114/1823)
-         v = sqrt(v2)
-         v3 = v*v2
-         v4 = v2*v2
-         xn = r0/6.748333e24
-         xf = rf/6.748333e24
-         wp = 3.545*sqrt(xn)
-         wf = 3.545*sqrt(xf)
-         xkf = 3.094*xf**(0.3333333333)
-         y = 2*v2/wp
-         if (y < 1d6) then
-            y = 1/(1-exp(-1d0/y))
-         endif
-         y2 = y*y
-         y8 = sqrt(1+8/y2)
-         y28 = 0.5*y2*(1-y8)
-         yx = 4*log(0.25*(1+y8))
-c         xi = 0.0
-         xi = re/r0
-         xi2 = xi*xi
-         yb0 = (5.-xi2/2.)*log(y)
-         yb1 = (1.-xi2/4.)*(1+y28+yx)
-         yb = (yb0+yb1)/3.0
-         yb = yb * ze*wp*3.14159/v3
-         ef = xkf*xkf*27.21
-         vp = 4.0*(rf/1d25)**(-0.025)*sqrt(1+te/ef)
-         vp4 = vp**4
-         vf = (v4/(vp4+v4))*zf
-         yb = yb * vf
-         yb = max(yb, 0.0)
-         if (md .ge. 20 .or. md .eq. -2) then
-            y = ze/v
-            y2 = y*y
-            y4 = y2*y2
-            vp4 = (2*vp)**4
-            vf = (v4/(vp4+v4))*zf
-            yc = -y2*1.202*vf
-            yb = yb + yc
-         endif
-         if (md .lt. 0) then
-            vlhfit = yb
-            return
-         endif
-      endif
 c
 c .... (1) looking up the energy index
-c
+c      
       if(ex.ge.etab(1)) then
          inde1 = 1
          inde2 = 1
@@ -597,20 +549,20 @@ c
          inde2 = neee
          goto 10
       endif
-      do 1 ie=2,neee-1
+      do ie=2,neee-1
          if(ex.eq.etab(ie)) then
             inde1 = ie
             inde2 = ie
             goto 10
          endif
- 1    continue
-      do 2 ie=1,neee-1
+      enddo
+      do ie=1,neee-1
          if(ex.lt.etab(ie) .and. ex.gt.etab(ie+1)) then
             inde1 = ie
             inde2 = ie + 1
             goto 10
          endif
- 2    continue
+      enddo
 c
 c ... looking up the density index
 c
@@ -624,27 +576,115 @@ c
          indr2 = nrho
          goto 20
       endif
-      do 11 ir=2,nrho-1
+      do ir=2,nrho-1
          if(rx.eq.rtab(ir)) then
             indr1 = ir
             indr2 = ir
             goto 20
          endif
- 11   continue
-      do 12 ir=1,nrho-1
+      enddo
+      do ir=1,nrho-1
          if(rx.gt.rtab(ir) .and. rx.lt.rtab(ir+1)) then
             indr1 = ir
             indr2 = ir + 1
             goto 20
          endif
- 12   continue
+      enddo
 
  20   continue
+
+      if (indr1 .eq. indr2) then
+         ep = epk(indr1)
+      else
+         ep = epk(indr1) + (rx-rtab(indr1))*
+     +        (epk(indr2)-epk(indr1))/(rtab(indr2)-rtab(indr1))
+      endif
+
+      xn = r0/6.748333e24
+      xb = (r0-rf)/6.748333e24
+      if (re .gt. 0) then
+         xe = re/6.748333e24      
+         xelog = log10(xe)
+         ec = xepb*ep
+         xf = 2.0*log10(e0/ec)
+         if (xf .gt. 10) then
+            xf = 0.0
+         else
+            xf = exp(-10**xf)
+         endif
+         r0 = r0 + re*xf
+         xb = xb + xe*xf
+         rx = log10(max(1d-10,r0))
+      endif
+      yb = 0.0
+      if (r0 .gt. 0 .and.
+     +     (md .lt. 0 .or. (md .ge. 10 .and. md .lt. 30))) then
+         v2 = (2*e0*1e6/27.2114/1823)
+         v = sqrt(v2)
+         v3 = v*v2
+         wp = 3.545*sqrt(xn)
+         y = 2*v2/wp
+         if (y < 1d6) then
+            y = 1/(1-exp(-1d0/y))
+         endif
+         y2 = y*y
+         y8 = sqrt(1+8/y2)
+         y28 = 0.5*y2*(1-y8)
+         yx = 4*log(0.25*(1+y8))
+         yb0 = 5.*log(y)
+         yb1 = (1+y28+yx)
+         yb = (yb0+yb1)/3.0
+         yb = yb * ze*wp*3.14159/v3
+         if (xb .gt. 0) then
+            ec = xepd*ep*((xb)**xepc)
+         else
+            ec = xepd*ep
+         endif
+         vf = 0.5*log10(ec/e0)
+         if (vf .gt. 10) then
+            vf = 0.0
+         else
+            vf = exp(-10**vf)
+         endif
+         yb = yb * vf
+         yb = max(yb, 0.0)
+         if (md .lt. 0) then
+            vlhfit = yb
+            return
+         endif
+      endif
+
+ 30   if(rx.le.rtab(1)) then
+         indr1 = 1
+         indr2 = 1
+         goto 40
+      endif
+      if(rx.ge.rtab(nrho)) then
+         indr1 = nrho
+         indr2 = nrho
+         goto 40
+      endif
+      do ir=2,nrho-1
+         if(rx.eq.rtab(ir)) then
+            indr1 = ir
+            indr2 = ir
+            goto 40
+         endif
+      enddo
+      do ir=1,nrho-1
+         if(rx.gt.rtab(ir) .and. rx.lt.rtab(ir+1)) then
+            indr1 = ir
+            indr2 = ir + 1
+            goto 40
+         endif
+      enddo
+
+ 40   continue  
 c
 c .... if the point is right at one of the  nodes
 c
       if(inde1.eq.inde2 .and. indr1.eq.indr2) then
-         vlhfit = 10**vlhtab(inde1,indr1)+yb
+         vlhfit = 10**vlhtab(inde1,indr1) + yb
          return
       endif
 
@@ -712,22 +752,26 @@ C    SUBSTITUTED FOR THIS ONE.
       IF (H .LT. 0.0)  GO TO 4
       IF (N .LT. 4)  GO TO 3
       G(2) = H24*( 9.0*Y(1)+19.0*Y(2)-5.0*Y(3)+Y(4) )
-      DO  1  K=3,N1
- 1    G(K) = H24*( -Y(K-2)+13.0*(Y(K-1)+Y(K))-Y(K+1) )
+      DO K=3,N1
+         G(K) = H24*( -Y(K-2)+13.0*(Y(K-1)+Y(K))-Y(K+1) )
+      enddo
       G(N) = H24*( Y(N-3)-5.0*Y(N-2)+19.0*Y(N-1)+9.0*Y(N) )
       NB = 4*((N-1)/4) + 1
       NC = NB + 1
       F(1) = FIN
-      DO  21  K=5,NB,4
- 21   F(K) = F(K-4) + G(K-3) + G(K-2) + G(K-1) + G(K)
+      DO  K=5,NB,4
+         F(K) = F(K-4) + G(K-3) + G(K-2) + G(K-1) + G(K)
+      enddo
 CDIR$  IVDEP
-      DO  22  K=5,NB,4
-      F(K-3) = F(K-4) + G(K-3)
-      F(K-2) = F(K-4) + G(K-3) + G(K-2)
- 22   F(K-1) = F(K-4) + G(K-3) + G(K-2) + G(K-1)
+      DO K=5,NB,4
+         F(K-3) = F(K-4) + G(K-3)
+         F(K-2) = F(K-4) + G(K-3) + G(K-2)
+         F(K-1) = F(K-4) + G(K-3) + G(K-2) + G(K-1)
+      enddo
       IF (NB .EQ. N)  GO TO 24
-      DO  23  K=NC,N
- 23   F(K) = F(K-1) + G(K)
+      DO  K=NC,N
+         F(K) = F(K-1) + G(K)
+      enddo
  24   CONTINUE
       RETURN
  3    F(1) = FIN
@@ -742,26 +786,30 @@ CDIR$  IVDEP
  4    IF (N .LT. 4)  GO TO 6
       NP = N + 1
       G(N-1) = H24*( 9.0*Y(N)+19.0*Y(N-1)-5.0*Y(N-2)+Y(N-3) )
-      DO  5  K=3,N1
-      J = NP - K
- 5    G(J) = H24*( -Y(J+2)+13.0*(Y(J+1)+Y(J))-Y(J-1) )
+      DO  K=3,N1
+         J = NP - K
+         G(J) = H24*( -Y(J+2)+13.0*(Y(J+1)+Y(J))-Y(J-1) )
+      enddo
       G(1) = H24*( Y(4)-5.0*Y(3)+19.0*Y(2)+9.0*Y(1) )
       NB = 4*((N-1)/4) + 1
       NC = NB + 1
       F(N) = FIN
-      DO  31  K=5,NB,4
-      J = NP - K
- 31   F(J) = F(J+4) + G(J+3) + G(J+2) + G(J+1) + G(J)
+      DO  K=5,NB,4
+         J = NP - K
+         F(J) = F(J+4) + G(J+3) + G(J+2) + G(J+1) + G(J)
+      enddo
 CDIR$  IVDEP
-      DO  32  K=5,NB,4
-      J = NP - K
-      F(J+3) = F(J+4) + G(J+3)
-      F(J+2) = F(J+4) + G(J+3) + G(J+2)
- 32   F(J+1) = F(J+4) + G(J+3) + G(J+2) + G(J+1)
+      DO K=5,NB,4
+         J = NP - K
+         F(J+3) = F(J+4) + G(J+3)
+         F(J+2) = F(J+4) + G(J+3) + G(J+2)
+         F(J+1) = F(J+4) + G(J+3) + G(J+2) + G(J+1)
+      enddo
       IF (NB .EQ. N)  GO TO 34
-      DO  33  K=NC,N
-      J = NP - K
- 33   F(J) = F(J+1) + G(J)
+      DO K=NC,N
+         J = NP - K
+         F(J) = F(J+1) + G(J)
+      enddo
  34   CONTINUE
       RETURN
  6    F(N) = FIN
@@ -798,12 +846,13 @@ CDIR$  IVDEP
       subroutine rloss(md0)
       implicit real*8 (a-h,o-z)
 
-      common /lhtab/eione(50),rl(30),cl(50,30),cl0(50,30),
-     +     neee,nrho,xte,xte0
+      common /lhtab/eione(50),epk(30),rl(30),cl(50,30),cl0(50,30),
+     +     neee,nrho,xte,xte0,xepa,xepb,xepc,xepd
 
       md = mod(md0,10)
+      md1 = md
       if (md .eq. 5) md = md0
-      
+
       read(3, 101) nttt
       read(3, 102) nrho
       read(3, 103) neee
@@ -820,11 +869,12 @@ c      write(*,*) nttt, nrho, neee
             endif
             read(3, 105) jj, rhoj
             rl(j) = log10(rhoj)
+            call fpeak(rhoj, ttt, ep)
+            epk(j) = ep
             do k = 1, neee
-               read(3, *) ttti, rhoj, ek, cl1, cl2, cl3, cl4, cl5, cl6
-c               read(3, *) ttti, rhoj, ek, cl1, cl2, cl3
+               read(3, *) ttti, rhoji, ek, cl1, cl2, cl3, cl4, cl5, cl6
                kk = neee-k+1
-               eione(kk) = ek               
+               eione(kk) = ek
                if (md .eq. 1) then
                   cl(kk,j) = cl1
                else if (md .eq. 2) then
@@ -846,7 +896,8 @@ c               read(3, *) ttti, rhoj, ek, cl1, cl2, cl3
                endif
             enddo
          enddo
-      enddo
+      enddo      
+      
       do k = 1, neee
          do j = 1, nrho
             cl(k,j) = log10(max(1d-50,cl(k,j)))
@@ -871,10 +922,9 @@ c
 
       subroutine lindh(ttt)
       implicit real*8 (a-h,o-z)
-      common /lhtab/eione(50),rl(30),cl(50,30),cl0(50,30),
-     +     neee,nrho,xte,xte0
+      common /lhtab/eione(50),epk(30),rl(30),cl(50,30),cl0(50,30),
+     +     neee,nrho,xte,xte0,xepa,xepb,xepc,xepd
       dimension  rho(30)
-
 
       pi = 3.1415926
 c     electron mass in g
@@ -899,10 +949,10 @@ c     Bohr radius (cm)
       eione(5) = 10
       de = -1.0/9
       j = 5
- 900  do 901 i=2,46
+ 900  do i=2,46
          j = j+1
          eione(j) = eione(j-1)*10**(de)
- 901  continue
+      enddo
 
 c
 c ... constructing density mesh
@@ -914,15 +964,15 @@ c
       rho(1) = rho1
       if(nrho.gt.1) then
          drho = log(rho2/rho1)/(nrho-1)
-         do 2 k=2,nrho
+         do k=2,nrho
             rho(k) = rho(k-1)*dexpw(drho)
- 2       continue
+         enddo
       endif
 
 
-      do 100 iee=1,neee
+      do iee=1,neee
          eion = eione(iee)         
-         do 50 irho=1,nrho
+         do irho=1,nrho
             rrho = rho(irho)
 
 c
@@ -943,22 +993,69 @@ c                                                                      c
 c ************************ generating table  ************************* c
 c     c
             if (ttt .le. 1e-10) then
-               call lind0(eion, rrho, vlh2)
+               call lind0(eion, rrho, vlh2, ep)
             else
-               call lindt(eion,rrho,ttt,vlh2)
+               call lindt(eion,rrho,ttt,vlh2, ep)
             endif
+            epk(irho) = ep
             rl(irho)     = log10(rho(irho))
             cl(iee,irho) = vlh2
             cl(iee,irho) = log10(max(1d-50,vlh2))
 
- 50   continue
-
- 100  continue      
+         enddo
+      enddo
       
       return
       end
 
+      subroutine fpeak1(rho, te, epk)
+      implicit real*8 (a-h,o-z)
 
+      xn = rho/6.75e24
+      wp = 3.545*sqrt(xn)
+      xk = 3.094*xn**0.3333
+      ef = xk*xk*27.21
+      ep = sqrt(ef*ef+te*te)*1.823e-3
+      call lindt(ep, rho, te, yp, ep0)
+      yp = yp/sqrt(ep)
+      miter = 256
+      epk = ep
+      ep1 = 0.0
+      yp1 = yp
+      ep2 = 0.0
+      yp2 = yp
+      do i=1,miter
+         epk = epk*1.025
+         call lindt(epk, rho, te, ypk, ep0)
+         ypk = ypk/epk
+         if (ypk .gt. yp1) then
+            ep1 = epk
+            yp1 = ypk
+         else
+            ep2 = epk
+            yp2 = ypk
+            exit
+         endif
+      enddo
+      if (ep1 .lt. ep) then
+         epk = ep
+         do i = 1, miter
+            epk = epk/1.025
+            call lindt(epk, rho, te, ypk, ep0)
+            ypk = ypk/epk
+            if (ypk .gt. yp2) then
+               ep2 = epk
+               yp2 = ypk
+            else
+               ep1 = epk
+               yp1 = ypk
+               exit
+            endif
+         enddo
+      endif
+      epk = sqrt(ep1*ep2)
+      end            
+      
 c ************************************************************************
 c 
 c                     L I N D H A R D
@@ -967,7 +1064,7 @@ c
 c    reference: J. Appl. Phys. 50, 5579, 1979.
 c ************************************************************************
 
-      subroutine lind0(eion,rho,cl)
+      subroutine lind0(eion,rho,cl,epk)
       implicit real*8 (a-h,o-z)
       
       dimension uu(1000), up(100), wup(100)
@@ -1005,8 +1102,8 @@ c ... plasma frequency
 c
       wp = sqrt(4*pi*rho*e**2/emass)
 
-
-
+      vint = sqrt(1.5*(vf**2+hbar*wp/emass))
+      epk = 0.5*pmass*vint**2/1.6021917e-6
 c            
 c ... dividing the first integration range 0 to v/vf into 
 c     ten equal logritham sub-ranges
@@ -1058,14 +1155,14 @@ c
 c ... outer integral over u
 c
          sumu = 0.0
-         do 50 iu=1,nu-1
+         do iu=1,nu-1
             u1 = uu(iu)
             u2 = uu(iu+1)
             
             call nodewt(u1,u2,up,wup,np)
             
             sumu1 = 0.0
-            do 40 ju=1,np
+            do ju=1,np
                u = up(ju)
 c
 c ... searching for the root of function g
@@ -1113,11 +1210,11 @@ c
                
                sumu1 = sumu1 + wup(ju)*u*suma
                
- 40         continue
+            enddo
             
             sumu = sumu + sumu1
             
- 50      continue
+         enddo
          
 
          cl = 6/pi/xx*sumu
@@ -1276,7 +1373,7 @@ c      searching for the root of the g(u,a) for a given u value
       dx=dxold
       f = g(rtsafe,u, xx)
       df= dgda(rtsafe,u, xx)
-      do 11 j=1,100
+      do j=1,100
         if(((rtsafe-xh)*df-f)*((rtsafe-xl)*df-f).ge.0. .or. abs(2*f)
      : .gt.abs(dxold*df) ) then
           dxold=dx
@@ -1298,8 +1395,8 @@ c      searching for the root of the g(u,a) for a given u value
         else
           xh=rtsafe
         endif
-11    continue
-      pause 'rtsafe exceeding maximum iterations'
+      enddo
+      write(*,*) 'rtsafe exceeding maximum iterations'
       return
       end
 
@@ -1322,42 +1419,42 @@ c
       bma = (x2-x1)/2.
       bpa = (x2+x1)/2.
       if(np.eq.30) then
-         do 1 i=1,15
+         do i=1,15
             x(i)    = -bma*x30(16-i) + bpa
             x(15+i) =  bma*x30(i)    + bpa
             w(i)    =  bma*w30(16-i)
             w(15+i) =  bma*w30(i)
- 1       continue
+         enddo
          return
        endif
 
       if(np.eq.50) then
-         do 2 i=1,25
+         do i=1,25
             x(i)    = -bma*x50(26-i) + bpa
             x(25+i) =  bma*x50(i)    + bpa
             w(i)    =  bma*w50(26-i)
             w(25+i) =  bma*w50(i)
- 2       continue
+         enddo
          return
        endif
 
       if(np.eq.80) then
-         do 3 i=1,40
+         do i=1,40
             x(i)    = -bma*x80(41-i) + bpa
             x(40+i) =  bma*x80(i)    + bpa
             w(i)    =  bma*w80(41-i)
             w(40+i) =  bma*w80(i)
- 3          continue
+         enddo
          return
        endif
 
       if(np.eq.100) then
-         do 4 i=1,50
+         do i=1,50
             x(i)    = -bma*x100(51-i) + bpa
             x(50+i) =  bma*x100(i)    + bpa
             w(i)    =  bma*w100(51-i)
             w(50+i) =  bma*w100(i)
- 4       continue
+         enddo
        endif
        
        return
@@ -1449,7 +1546,73 @@ c
 
        end
 
+ 
+      subroutine fpeak(rho, t, epk)
+      implicit real*8 (a-h,o-z)
+      dimension vii(10), vlhp(10)
 
+c .... constants
+c
+      zero = 0.0
+      f12  = 1./2.
+      f32  = 3./2.
+      f52  = 5./2.
+      pi = 3.1415926
+c     electron mass in g
+      emass = 9.109389700e-28
+c     electron charge in cgs unit
+      e  = 4.8065e-10
+c     proton mass in g
+      pmass = 1.672623100e-24
+c     Plank constant h/2pi erg*s
+      hbar = 1.0545887e-27
+c     Bohr velocity (cm/s)
+      v0   = e**2/hbar
+c     Bohr radius (cm)
+      a0   = 5.291772e-9
+
+c
+c ... define osme variables
+c --------------------------
+c     inter-electron distance rs (in a0)
+      rs = 1./(4./3*pi*rho)**(1./3.)/a0
+c     X2
+      x2 = 0.5211*rs/pi
+c     fermi energy in (2Ry)
+      ef = 1.84/rs**2
+c     ion velocity in (cm/s)
+      vion = sqrt(2*eion*1.6021917e-6/pmass)
+c     fermi velocity in (cm/s)
+      vf = (hbar/emass) * (3*pi**2*rho)**(1./3.)
+c     reduce temperature
+      te = t/(27.2116*ef)
+c     plasma frequency
+      wp = sqrt(4*pi*rho*e**2/emass)
+
+      if (te .gt. 1e-10) then
+c
+c ... chemical potential
+c
+         call findmu(te,alpha)
+         amu = alpha*t/27.2116
+c     reduce chemical potential
+         gamma = amu/ef
+
+c
+c  determine the cut point between the 'high' and low': Vint
+c -----------------------------------------------------------
+
+         ve2 = vf**2 * te * fd(f32,alpha)/fd(f12,alpha)
+      else
+         ve2 = 0.0
+      endif
+      cnt = hbar*wp/emass
+      vint= sqrt(1.5*(ve2 + cnt))
+
+      epk = 0.5*pmass*vint*vint/1.6021917e-6
+      
+      end
+      
 c ********************************************************************* c
 c                                                                       c
 c                       T L I N D H A R D
@@ -1462,11 +1625,14 @@ c                             J. De. Phys. Vol 46, 71(1985)
 c ********************************************************************* c
 
  
-      subroutine lindt(eion, rho, 
-     :                           t, vlh)
+      subroutine lindt(eion, rho, t, vlh, epk)
       implicit real*8 (a-h,o-z)
       dimension vii(10), vlhp(10)
 
+      if (t .lt. 1e-10) then
+         call lind0(eion, rho, vlh, epk)
+         return
+      endif
 c 
 c .... constants
 c
@@ -1522,11 +1688,10 @@ c -----------------------------------------------------------
       ve2 = vf**2 * te * fd(f32,alpha)/fd(f12,alpha)
       cnt = hbar*wp/emass
       vint= sqrt(1.5*(ve2 + cnt))
+      epk = 0.5*pmass*vint**2/1.6021917e-6
       vratio = vion/vint
-
       call highv(te,alpha,vint,vf,emass,hbar,wp, vlhh)
       call lowv (te,gamma,alpha,vint,vf,x2, vlhl)             
-
       cg = (vlhl/vlhh - 1.)/vint**2
 c
 c  for high velocity  limit
@@ -1558,20 +1723,20 @@ c -------------------------------------
         vii(5) =  2.00*vint
         vii(6) =  2.50*vint
 
-        do 1 i=1,3
+        do i=1,3
            vionp = vii(i)
            call lowv(te,gamma,alpha,vionp,vf,x2,vlh)
            vlh = vlh/(1+cg*vionp**2)
            vlhp(i) = log10(vlh)
            vii(i) = log10(vii(i))           
- 1      continue
+        enddo
 
-        do 2 i=4,6
+        do i=4,6
  3         vionp = vii(i)
            call highv(te,alpha,vionp,vf,emass,hbar,wp, vlh)       
            vlhp(i) = log10(vlh)
            vii(i) = log10(vii(i)) 
- 2      continue
+        enddo
 
         vpoit = log10(vion)
         call itpolt(6,vii,vlhp,vpoit,vlh)
@@ -1664,9 +1829,9 @@ c ... integrate over 0 to infinit
       v21 = 0
       q1 = 0
       q2 = 10
-      do 5 in=1,10
+      do in=1,10
          call nodewt(q1,q2,q0m,w0m,30)
-      do 1 i=1,30
+      do i=1,30
          x = q0m(i)
          rn = an(x)**2 + bn(x)**2
          v11 = v11 + w0m(i)*bn(x)/rn
@@ -1677,10 +1842,10 @@ c ... integrate over 0 to infinit
          qm = ((u-z) - an(x))/bn(x)                  
          atgs = atan(pp) + atan(pm) - atan(qp) - atan(qm)
          v21 = v21 + w0m(i)*atgs
- 1    continue
+      enddo
       q1 = q2 
       q2 = 10*q2
- 5    continue
+      enddo
 
 c
 c ... function value at 0 
@@ -1756,9 +1921,9 @@ c ------------
       endif
  1    call nodewt(q1,q2,qn,qw,np)
       sum1 = 0.0
-      do 2 i=1,np
+      do i=1,np
          sum1 = sum1 + qw(i)*an0(qn(i),gamma,te)
- 2    continue
+      enddo
       sum = sum + sum1
       
       ratio = abs(sum1/sum)
@@ -1838,7 +2003,7 @@ c      for 'alpha'
       rp =rtsafe+dmu
       fp= fzz(zz,rp)
       df= (fp-f)/dmu
-      do 11 j=1,100
+      do j=1,100
         if(((rtsafe-xh)*df-f)*((rtsafe-xl)*df-f).ge.0. .or. abs(2*f)
      : .gt.abs(dxold*df) ) then
           dxold=dx
@@ -1862,8 +2027,8 @@ c      for 'alpha'
         else
           xh=rtsafe
         endif
-11    continue
-      pause 'rtsafe exceeding maximum iterations at findmu'
+      enddo
+      write(*,*) 'rtsafe exceeding maximum iterations at findmu'
       return
       end
 
@@ -2745,10 +2910,10 @@ c
 c
       alfmax(1) = r1mach(2)
       alfmax(2) = r1mach(2)
-      do 10 ndx=3,10
+      do ndx=3,10
         xk = (ndx-2)*0.5
         alfmax(ndx) = r1mach(2)**(1.0/(xk+1.0)) * 0.99
- 10   continue
+      enddo
 c
  20   ndx = (xnu+1.0)*2.0 + 0.01
       fd = 0.0
@@ -2862,12 +3027,12 @@ c
        b1=0.
        b0=0.
        twox=2.*x
-       do 10 i=1,n
-       b2=b1
-       b1=b0
-       ni=n+1-i
-       b0=twox*b1-b2+cs(ni)
- 10    continue
+       do i=1,n
+          b2=b1
+          b1=b0
+          ni=n+1-i
+          b0=twox*b1-b2+cs(ni)
+       enddo
 c
        csevl = 0.5 * (b0-b2)
 c
@@ -2931,11 +3096,11 @@ c     eta    requested accuracy of series.
 
 
       err = 0.
-      do 10 ii=1,nos
+      do ii=1,nos
         i = nos + 1 - ii
         err = err + abs(os(i))
         if (err.gt.eta) go to 20
- 10   continue
+      enddo
 
  20   continue
       inits = i
@@ -2972,10 +3137,10 @@ c
       sumz = 0.
  1    call nodewt(z1,z2,qz,wz,nz)
       sumz1 = 0
-      do 2 iz=1,nz
+      do iz=1,nz
          g0=sqrt(te)/2*(f1 + 2*qz(iz)**2/te*g1)
          sumz1 = sumz1 + wz(iz)*u0fu(qz(iz),te,gamma,g0,x2)
- 2    continue
+      enddo
       sumz = sumz + sumz1
       
       ratio = abs(sumz1/sumz)
@@ -3048,20 +3213,20 @@ c
       implicit real*8 (a-h,o-z)	
       dimension t(n),y(n),h(n),b(n),u(n),v(n),z(n)
 
-      do 2 i = 1,n-1
+      do i = 1,n-1
          h(i) = t(i+1) - t(i)
          b(i) = (y(i+1) - y(i))/h(i)
- 2    continue
+      enddo
       u(2) = 2.0*(h(1) + h(2))
       v(2) = 6.0*(b(2) - b(1))
-      do 3 i = 3,n-1
+      do i = 3,n-1
          u(i) = 2.0*(h(i)+h(i-1)) - h(i-1)**2/u(i-1)
          v(i) = 6.0*(b(i)-b(i-1)) - h(i-1)*v(i-1)/u(i-1)
- 3    continue
+      enddo
       z(n) = 0.0
-      do 4 i = n-1,2,-1
+      do i = n-1,2,-1
          z(i) = (v(i)-h(i)*z(i+1))/u(i)
- 4    continue
+      enddo
       z(1) = 0.0
       return
       end
@@ -3071,10 +3236,10 @@ c
       implicit real*8 (a-h,o-z)		
       dimension t(n),y(n),z(n)
       
-      do 2 i= n-1,2,-1
+      do i= n-1,2,-1
 	 diff = x - t(i)
 	 if(diff.ge.0.0) goto 3
- 2    continue
+      enddo
       i=1
       diff = x - t(1)
  3    h = t(i+1) - t(i)
@@ -3104,17 +3269,17 @@ c      This routine is used for calculating G1(alpha) integral
          q2 = 20 
          call nodewt(q1,q2,qn,qwn,50)
          sum = 0
-         do 12 i=1,50
+         do i=1,50
             sum = sum + qwn(i)*gg1(sigma,alpha,qn(i))
- 12      continue
+         enddo
       else
          q1 = 0
          q2 = 30
          call nodewt(q1,q2,qn,qwn,50)
          sum = 0
-         do 22 i=1,50
+         do i=1,50
             sum = sum + qwn(i)*gg2(sigma,alpha,qn(i))
- 22      continue
+         enddo
       endif
                
       ggg1 = sum
@@ -3241,12 +3406,12 @@ c
 c ... find the peak of dE/dX
       epeak = 0
       dpeak = 0
-      do 1 i=1,nme
+      do i=1,nme
          if(dedx(i).gt.dpeak) then
             epeak = eamu(i)
             dpeak = dedx(i)
          endif
- 1    continue
+      enddo
       elow  = min(0.1,0.1*epeak)
       ehigh = max(0.5,10.*epeak) 
 
@@ -3254,13 +3419,13 @@ c
 c ... first of all, fit low energy data     
 
       ilow = 0
-      do 3 i=1,nme
+      do i=1,nme
          if(eamu(i).le.elow) then
             ilow = ilow + 1
             x(ilow) = eamu(i)
             y(ilow) = dedx(i)
          endif
- 3    continue
+      enddo
       if(ilow.lt.1) then
          a(1) = 0
          a(2) = 0
@@ -3271,9 +3436,9 @@ c ... fit the data
       key = 1
       np = ilow
       n = 2
-      do 4 i=1,10
+      do i=1,10
          e(i) = 1.e-3
- 4    continue
+      enddo
       ef = 0.
       escale = 0.07 / e(1)
       iprint = 1
@@ -3293,13 +3458,13 @@ c
 c ... now, fit data between (elow, ehigh)     
 
  1002 ihi = 0
-      do 5 i=1,nme
+      do i=1,nme
          if(eamu(i).gt.elow .and. eamu(i).lt.ehigh) then
             ihi = ihi + 1
             x(ihi) = eamu(i)
             y(ihi) = dedx(i)
          endif
- 5    continue
+      enddo
       if(ihi .lt.1) then
          a(3) = 0
          a(4) = 0
@@ -3314,9 +3479,9 @@ c ... fit the data
       key = 3
       np = ihi
       n = 5
-      do 6 i=1,10
+      do i=1,10
          e(i) = 1.0e-3
- 6    continue
+      enddo
       ef = 0.
       escale = 0.07 / e(1)
       iprint = 1
@@ -3355,13 +3520,13 @@ c
 c ... now, fit high energy  data     
 
  1003 ihi = 0
-      do 9 i=1,nme
+      do i=1,nme
          if(eamu(i).ge.ehigh) then
             ihi = ihi + 1
             x(ihi) = eamu(i)
             y(ihi) = dedx(i)
          endif
- 9    continue
+      enddo
       if(ihi.lt.1) then
          a(8) = 0
          a(9) = 0
@@ -3373,9 +3538,9 @@ c ... fit the data
       key = 2
       np = ihi
       n = 3
-      do 10 i=1,10
+      do i=1,10
          e(i) = 1.e-3
- 10   continue
+      enddo
       ef = 0.
       escale = 0.07 / e(1)
       iprint = 1
@@ -3404,9 +3569,9 @@ c ... fit the data
       a(10)= u(3)
       
       if(iidd.eq.1) then
-         do 11 i=1,10
+         do i=1,10
             olda(i) = a(i)
- 11      continue
+         enddo
       endif
       
  1004 return
@@ -3423,14 +3588,14 @@ c <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
       dimension u(10)
  
       sum = 0.
-      do 100 i=1,np
+      do i=1,np
  
          fit = fitfun ( x(i), u )
 c        err = fit / y(i) - 1.
          err = fit - y(i)
          sum = sum + err*err
  
- 100  continue
+      enddo
  
       f = sum
 
@@ -3481,13 +3646,16 @@ c <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
       NFCC=1
       IND=1
       INN=1
-      DO 4 I=1,N
-        W(I)=ESCALE
-      DO 4 J=1,N
-        W(K)=0.
-        IF (I-J) 4,3,4
-    3   W(K)=ABS(E(I))
-    4   K=K+1
+      DO I=1,N
+         W(I)=ESCALE
+         DO J=1,N
+            W(K)=0.
+            IF (I .eq. J) then
+               W(K)=ABS(E(I))
+            endif
+            K=K+1
+         enddo
+      enddo
       ITERC=1
       ISGRAD=2
       CALL CALCFX ( N,X,F )
@@ -3496,9 +3664,10 @@ c <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
       FP=F
       SUM=0.
       IXP=JJ
-      DO 6 I=1,N
+      DO I=1,N
         IXP=IXP+1
-    6   W(IXP)=X(I)
+        W(IXP)=X(I)
+      enddo
       IDIRN=N+1
       ILINE=1
     7 DMAX=W(ILINE)
@@ -3516,9 +3685,10 @@ c <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
     8 DD=D-DL
       DL=D
    58 K=IDIRN
-      DO 9 I=1,N
+      DO I=1,N
         X(I)=X(I)+DD*W(K)
-    9   K=K+1
+        K=K+1
+      enddo
       CALL CALCFX ( N,X,F )
       NFCC=NFCC+1
       GO TO (10,11,12,13,14,96),IS
@@ -3609,10 +3779,11 @@ c  18 WRITE (LUNBTM,19)
    41 F=FI
       D=DI-DL
       DD=SQRT((DC-DB)*(DC-DA)*(DA-DB)/(A+B))
-      DO 49 I=1,N
+      DO I=1,N
         X(I)=X(I)+D*W(IDIRN)
         W(IDIRN)=DD*W(IDIRN)
-   49   IDIRN=IDIRN+1
+        IDIRN=IDIRN+1
+      enddo
       W(ILINE)=W(ILINE)/DD
       ILINE=ILINE+1
       IF (IPRINT-1) 51,50,51
@@ -3630,9 +3801,10 @@ c  50 WRITE (LUNBTM,52) ITERC,NFCC,F,(X(I),I=1,N)
    92 FHOLD=F
       IS=6
       IXP=JJ
-      DO 59 I=1,N
+      DO I=1,N
         IXP=IXP+1
-   59   W(IXP)=X(I)-W(IXP)
+        W(IXP)=X(I)-W(IXP)
+      enddo
       DD=1.
       GO TO 58
    96 GO TO (112,87),IND
@@ -3641,22 +3813,26 @@ c  50 WRITE (LUNBTM,52) ITERC,NFCC,F,(X(I),I=1,N)
       IF (D*(FP-FHOLD-SUM)**2-SUM) 87,37,37
    87 J=JIL*N+1
       IF (J-JJ) 60,60,61
-   60 DO 62 I=J,JJ
+   60 DO I=J,JJ
         K=I-N
-   62   W(K)=W(I)
-      DO 97 I=JIL,N
-   97   W(I-1)=W(I)
+        W(K)=W(I)
+      enddo
+      DO I=JIL,N
+         W(I-1)=W(I)
+      enddo
    61 IDIRN=IDIRN-N
       ITONE=3
       K=IDIRN
       IXP=JJ
       AAA=0.
-      DO 67 I=1,N
+      DO I=1,N
         IXP=IXP+1
         W(K)=W(IXP)
-        IF (AAA-ABS(W(K)/E(I))) 66,67,67
-   66   AAA=ABS(W(K)/E(I))
-   67   K=K+1
+        IF (AAA .lt. ABS(W(K)/E(I))) then
+           AAA=ABS(W(K)/E(I))
+        endif
+        K=K+1
+      enddo
       DDMAG=1.
       W(N)=ESCALE/AAA
       ILINE=N
@@ -3664,12 +3840,13 @@ c  50 WRITE (LUNBTM,52) ITERC,NFCC,F,(X(I),I=1,N)
    37 IXP=JJ
       AAA=0.
       F=FHOLD
-      DO 99 I=1,N
+      DO I=1,N
         IXP=IXP+1
         X(I)=X(I)-W(IXP)
-        IF (AAA*ABS(E(I))-ABS(W(IXP))) 98,99,99
-   98   AAA=ABS(W(IXP)/E(I))
-   99   CONTINUE
+        IF (AAA*ABS(E(I)) .lt. ABS(W(IXP))) then
+           AAA=ABS(W(IXP)/E(I))
+        endif
+      enddo
       GO TO 72
    38 AAA=AAA*(1.+DI)
       GO TO (72,106),IND
@@ -3681,10 +3858,11 @@ c  50 WRITE (LUNBTM,52) ITERC,NFCC,F,(X(I),I=1,N)
       GO TO (100,101),INN
   100 INN=2
       K=JJJ
-      DO 102 I=1,N
+      DO I=1,N
         K=K+1
         W(K)=X(I)
-  102   X(I)=X(I)+10.*E(I)
+        X(I)=X(I)+10.*E(I)
+      enddo
       FKEEP=F
       CALL CALCFX ( N,X,F )
       NFCC=NFCC+1
@@ -3705,9 +3883,10 @@ c  81 WRITE (LUNBTM,82) MAXIT
    82 FORMAT (I5,' ITERATIONS COMPLETED BY BOTM')
       IF (F-FKEEP) 20,20,110
   110 F=FKEEP
-      DO 111 I=1,N
+      DO I=1,N
         JJJ=JJJ+1
-  111   X(I)=W(JJJ)
+        X(I)=W(JJJ)
+      enddo
       GO TO 20
   101 JIL=1
       FP=FKEEP
@@ -3716,7 +3895,7 @@ c  81 WRITE (LUNBTM,82) MAXIT
       FP=F
       F=FKEEP
   105 IXP=JJ
-      DO 113 I=1,N
+      DO I=1,N
         IXP=IXP+1
         K=IXP+N
         GO TO (114,115),JIL
@@ -3724,7 +3903,8 @@ c  81 WRITE (LUNBTM,82) MAXIT
         GO TO 113
   115   W(IXP)=X(I)
         X(I)=W(K)
-  113   CONTINUE
+ 113    CONTINUE
+      enddo
       JIL=2
       GO TO 92
   106 IF (AAA-0.1) 20,20,107
@@ -3745,7 +3925,7 @@ c  81 WRITE (LUNBTM,82) MAXIT
       common / hlbdy / elow, ehig, epeak      
       common /rrang/range(50,50,200)
 
-      do 100 iee=1,mep
+      do iee=1,mep
          emax = ee(iee)
 
          rag = 0.0
@@ -3758,7 +3938,7 @@ c  81 WRITE (LUNBTM,82) MAXIT
  15      call nodewt(el,eh,eq,wq,np)
          
          add = 0
-         do 150 ie=np,1,-1
+         do ie=np,1,-1
             
 c ----------------------- dE/dX
             eion = eq(ie)/1.0e6
@@ -3781,7 +3961,7 @@ c -----------------------
                see = 1
             endif
             add = add +  wq(ie)/dedx
- 150     continue
+         enddo
 
          rag = rag + add
 
@@ -3806,7 +3986,7 @@ c         aucoef = 6.023e23/amass * 1d-3
 c         rag = rag/aucoef         
          range(it,id,iee) = rag
 
- 100  continue
+      enddo
 
 
       return

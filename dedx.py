@@ -20,14 +20,20 @@ def prep_inp(opts, od, zt):
     with open('%s/dedx.inp'%od, 'w') as f:
         f.write('&dedxinp\n\n')
         f.write('  zzp = %g\n'%opts.zp)
-        f.write('qmass = %8.2e\n'%fac.ATOMICMASS[int(opts.zp)])
+        f.write('qmass = %9.3e\n'%fac.ATOMICMASS[int(opts.zp)])
         f.write('  ztg = %d\n'%zt)
-        f.write('amass = %8.2e\n'%fac.ATOMICMASS[zt])
+        f.write('amass = %9.3e\n'%fac.ATOMICMASS[zt])
         f.write('  mep = %d\n'%opts.mep)
-        f.write('  emin = %8.2e\n'%opts.emin)
-        f.write('  emax = %8.2e\n'%opts.emax)
+        f.write('  emin = %9.3e\n'%opts.emin)
+        f.write('  emax = %9.3e\n'%opts.emax)
         f.write('  mloss = %d\n'%opts.mloss)
         f.write('  mout = %d\n'%opts.mout)
+        f.write('  dinp = %9.3e\n'%opts.d)
+        f.write('  tinp = %9.3e\n'%opts.t)
+        f.write('  epa = %9.3e\n'%opts.epa)
+        f.write('  epb = %9.3e\n'%opts.epb)
+        f.write('  epc = %9.3e\n'%opts.epc)
+        f.write('  epd = %9.3e\n'%opts.epd)
         f.write('&end\n')
 
     if (opts.frho != '' and
@@ -85,6 +91,16 @@ p.add_option('--sc', dest='sc', type='int',
              default=0, help='sc param of aa.AA')
 p.add_option('--pmi', dest='pmi', type='int',
              default=0, help='pmi param of aa.AA')
+p.add_option('--v', dest='v', type='int',
+             default=0, help='verbose level')
+p.add_option('--epa', dest='epa', type='float',
+             default=-1e11, help='epa param')
+p.add_option('--epb', dest='epb', type='float',
+             default=-1e11, help='epb param')
+p.add_option('--epc', dest='epc', type='float',
+             default=-1e11, help='epc param')
+p.add_option('--epd', dest='epd', type='float',
+             default=-1e11, help='epd param')
 
 opts,args = p.parse_args()
 
@@ -119,22 +135,31 @@ elif opts.fc != '':
 else:
     zc = []
     wc = []    
-    
+
+if (opts.d <= 0):
+    if opts.fc != '':
+        opts.d = getden(opts.fc)
+    elif opts.zt > 0:
+        opts.d = getden(opts.zt)
 if opts.aa > 1:
     t0 = time.time()
     taa = max(opts.t, opts.taa)
     if len(zc) > 0:
-        print('running avgatom zc=%s wc=%s fc=%s d=%g t=%g'%(opts.zc, opts.wc, opts.fc, opts.d, taa))
+        if opts.v > 0:
+            print('running avgatom zc=%s wc=%s fc=%s d=%g t=%g'%(opts.zc, opts.wc, opts.fc, opts.d, taa))
         a = aa.AA(z=zc, d=opts.d, t=taa, wm=wc, dd=opts.od, bqp=opts.bqp, sc=opts.sc, pmi=opts.pmi)
         a.run()
         t1 = time.time()
-        print('done avgatom zc=%s wc=%s fc=%s d=%g t=%g in %10.3E'%(opts.zc, opts.wc, opts.fc, opts.d, taa,(t1-t0)))
+        if opts.v > 0:
+            print('done avgatom zc=%s wc=%s fc=%s d=%g t=%g in %10.3E'%(opts.zc, opts.wc, opts.fc, opts.d, taa,(t1-t0)))
     else:
-        print('running avgatom z=%d d=%g t=%g ...'%(opts.zt,opts.d,taa))
+        if opts.v > 0:
+            print('running avgatom z=%d d=%g t=%g ...'%(opts.zt,opts.d,taa))
         a = aa.AA(z=opts.zt, d=opts.d, t=taa, dd=opts.od, bqp=opts.bqp, sc=opts.sc, pmi=opts.pmi)
         a.run()
         t1 = time.time()
-        print('done avgatom z=%d d=%g t=%g in %10.3E'%(opts.zt, opts.d, taa,(t1-t0)))
+        if opts.v > 0:
+            print('done avgatom z=%d d=%g t=%g in %10.3E'%(opts.zt, opts.d, taa,(t1-t0)))
     
 if opts.aa > 0:
     if opts.aa == 1:
@@ -152,7 +177,8 @@ if opts.aa > 0:
                opts.nr,
                '%s/rho.functions'%opts.od,
                rmin=opts.rmin/opts.zt**2)
-        print('rho.functions written')
+        if opts.v > 0:
+            print('rho.functions written')
 
 if len(zc) > 0:
     for z in zc:
@@ -164,7 +190,8 @@ else:
 
 if opts.dedx != '' and opts.dedx != 'None':
     t0 = time.time()
-    print('running dedx ...')
+    if opts.v > 0:
+        print('running dedx ...')
     if len(zc) > 0:
         rx = None
         ry = None
@@ -221,4 +248,5 @@ if opts.dedx != '' and opts.dedx != 'None':
     else:
         os.system('%s < %s/odir.inp'%(opts.dedx,opts.od))
     t1 = time.time()
-    print('done in %10.3E s'%(t1-t0))
+    if opts.v > 0:
+        print('done in %10.3E s'%(t1-t0))

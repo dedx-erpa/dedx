@@ -67,7 +67,8 @@ Instructions for running dedx.py:
        if mloss has a third digit of 1, the bound electron correction
        is omitted  
        The most sensible mode for common calculations would be mloss=24, which  
-       is the default if mloss is not specified.
+       is the default if mloss is not specified.  
+--v=  verbose level. if 0, the script runs silently. otherwise, progress is printed.
 
 Examples:  
 1. Proton in aluminum, solid density at room temperature.  

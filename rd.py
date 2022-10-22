@@ -285,13 +285,6 @@ def cmp_dedx(zt, xsc='e', dpass=1, atima=1, pstar=1):
             zt = 0
     d = 'data/%s'%a
     lab = 'eRPA'
-    y = rdedx(d)
-    x = y[0]
-    if (xsc == 'v'):
-        x = e2v(x)
-        plot(x, y[1], label=lab)
-    else:
-        semilogx(x, y[1], label=lab)
 
     d0 = d
     if (os.path.exists(d0+'/atima.txt') and atima==1):
@@ -352,12 +345,20 @@ def cmp_dedx(zt, xsc='e', dpass=1, atima=1, pstar=1):
             else:
                 x = x/1e3
             plot(x, y, marker='o', color='r',
-                 markersize=3, markeredgewidth=0.75,
+                 markersize=3, markeredgewidth=0.5,
                  fillstyle='none', linestyle='none', label='Exp.')
             break
         except:
             pass
                     
+    y = rdedx(d)
+    x = y[0]
+    if (xsc == 'v'):
+        x = e2v(x)
+        plot(x, y[1], label=lab)
+    else:
+        semilogx(x, y[1], label=lab)
+        
     ylabel(r'dE/dx ($10^{-15}$ eV cm$^2$/atom)')
     title('Target=%s'%a)    
     legend()
@@ -366,7 +367,7 @@ def gen_plots(zs = dts.ss, mrc=0):
     for z in zs:
         print(z)
         prange(z)
-        cmp_dedx(z, atima=0, dpass=0)
+        cmp_dedx(z, atima=0, dpass=0, pstar=0)
         if type(z) == type(0):
             od = 'data/%s'%(fac.ATOMICSYMBOL[z])
         else:
@@ -532,11 +533,11 @@ def pct(ide=0):
     clf()
     a = 1e-18/(12*1.67e-24*1e6)
     for i in range(nt):
-        r = rdedx('d%dt%02dC'%(ide,i))
+        r = rdedx('tmp/d%dt%02dC'%(ide,i))
         plot(r[0], r[1]*a, label=r'T=%g eV'%(int(ts[i])))
     xlim(0, 1.0)
     ylim(0, 1.2)
-    d = loadtxt('malko_fig.txt', unpack=1)
+    d = loadtxt('tmp/malko_fig.txt', unpack=1)
     plot(d[0][::2]/1e3, d[1][::2], marker='o', color='k', label='DFT', linestyle='none')
     errorbar(d[0][::2]/1e3, d[1][::2], yerr=(d[1][1::2]-d[1][::2]), capsize=3, marker='o', color='k', linestyle='none')
     xlabel('Energy (MeV)')                   
@@ -544,8 +545,8 @@ def pct(ide=0):
     title(r'$\rho$=%g g/cc'%ds[0])
     legend()
     
-    savefig('ct%d_dedx.png'%(ide))
-    savefig('ct%d_dedx.pdf'%(ide))
+    savefig('tmp/ct%d_dedx.png'%(ide))
+    savefig('tmp/ct%d_dedx.pdf'%(ide))
     
 def pnit(ide=0, nde=0):
     plt.rcParams.update({'font.size':15})
@@ -620,4 +621,18 @@ def palt(ide=0, nde=0):
     
     savefig('alt%d_range.png'%(ide))
     savefig('alt%d_range.pdf'%(ide))
+    
+def pfit():
+    clf()
+    zs = [6,13,14,29,47,64,79]
+    cs = ['k','r','g','b','y','c','m']
+    for i in range(len(zs)):
+        d = 'data/%s'%fac.ATOMICSYMBOL[zs[i]]
+        r = rdedx(d)
+        p = rpstar(d)
+        yp = interp(r[0], p[0], p[1])
+        semilogx(r[0], yp, marker='o', markersize=3, color=cs[i],
+                 markerfacecolor='none', linestyle='none')
+        semilogx(r[0], r[1], color=cs[i], label=fac.ATOMICSYMBOL[zs[i]])
+    legend()
     

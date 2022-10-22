@@ -31,7 +31,7 @@ def run1zp(z, m):
     d = getden(z)
     if d > 0:
         t = tmin   
-        run_dedx(z, d, t, aa=2, bqp=-1E12, floss='tct.dat', mloss=24)
+        run_dedx(z, d, t, aa=0, bqp=-1E12, floss='tct.dat', mloss=24)
 
 def run1z(z):
     run1zp(z, -1)

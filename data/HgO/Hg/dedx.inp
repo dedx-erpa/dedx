@@ -1,12 +1,18 @@
 &dedxinp
 
   zzp = 1
-qmass = 1.01e+00
+qmass = 1.008e+00
   ztg = 80
-amass = 2.00e+02
+amass = 2.005e+02
   mep = 100
-  emin = 1.00e-03
-  emax = 1.00e+02
+  emin = 1.000e-03
+  emax = 1.000e+02
   mloss = 24
   mout = 0
+  dinp = 1.114e+01
+  tinp = 2.500e-02
+  epa = -1.000e+11
+  epb = -1.000e+11
+  epc = -1.000e+11
+  epd = -1.000e+11
 &end
