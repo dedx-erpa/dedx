@@ -27,10 +27,10 @@ c ******************************************************************** c
       common / hlbdy / elow, ehig, epeak
       common /rrang/range(50,50,200)
 
-      data xepa /0.904/
-      data xepb /1.104/
-      data xepc /-1.376/
-      data xepd /13.858/      
+      data xepa /1.0/
+      data xepb /1.0372/
+      data xepc /-1.3231/
+      data xepd /0.7128/      
       
       namelist /dedxinp/zzp, qmass, ztg, amass, mep, emin, emax,
      +     mloss, mout, dinp, tinp, epa,epb,epc,epd
@@ -110,7 +110,6 @@ c
       if (epd .gt. -1e10) then
          xepd = epd
       endif
-      
       acoef = 6.023d20/amass
       bcoef = acoef*1d-21
 c     write(*,*) mep, emin, emax
@@ -225,8 +224,8 @@ c ----------------------------------------
          if (mloss .ge. 100) then
             icb = 0
             mloss = mod(mloss, 100)
-            mloss1 = mod(mloss, 10)
          endif
+         mloss1 = mod(mloss, 10)
          if (mloss1 .gt. 0) then
             xte0 = -1d31
             if (floss0(1:len0) .ne. floss(1:len2)) then
@@ -604,7 +603,6 @@ c
       xb = (r0-rf)/6.748333e24
       if (re .gt. 0) then
          xe = re/6.748333e24      
-         xelog = log10(xe)
          ec = xepb*ep
          xf = 2.0*log10(e0/ec)
          if (xf .gt. 10) then
@@ -613,7 +611,7 @@ c
             xf = exp(-10**xf)
          endif
          r0 = r0 + re*xf
-         xb = xb + xe*xf
+         xb = xb + xe
          rx = log10(max(1d-10,r0))
       endif
       yb = 0.0
@@ -636,10 +634,11 @@ c
          yb = (yb0+yb1)/3.0
          yb = yb * ze*wp*3.14159/v3
          if (xb .gt. 0) then
-            ec = xepd*ep*((xb)**xepc)
+            ec = 10**min(3.0,xepc*(log10(xb)-xepd))
          else
-            ec = xepd*ep
+            ec = 1e3;
          endif
+         ec = ep*max(ec, 0.05)
          vf = 0.5*log10(ec/e0)
          if (vf .gt. 10) then
             vf = 0.0
