@@ -132,6 +132,10 @@ if opts.zc != '':
     wc = [float(x) for x in opts.wc.split(',')]
 elif opts.fc != '':
     zc,wc = aa.zw4c(opts.fc)
+    if (len(zc) == 1):
+        zt = zc[0]
+        zc = []
+        wc = []
 else:
     zc = []
     wc = []    
@@ -169,7 +173,7 @@ if opts.aa > 0:
             az = fac.ATOMICSYMBOL[z]
             od = '%s/%s'%(opts.od,az)
             if not os.path.exists(od):
-                os.system('mkdir %s'%od)
+                os.system('mkdir -p %s'%od)
             a.wden(od, opts.nr, '%s/rho.functions'%od,
                    rmin=opts.rmin/opts.zt**2)
     else:

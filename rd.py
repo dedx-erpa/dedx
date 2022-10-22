@@ -566,14 +566,14 @@ def pnit(ide=0, nde=0):
     a = aa.AA()
     for j in range(nd):
         for i in range(nt):
-            r = rdedx('d%dt%02dNi'%(j,i))
+            r = rdedx('tmp/dtNi/d%dt%02dNi'%(j,i))
             fi = interpolate.interp1d(r[0], r[2])
             ry[j,i] = fi(1.6)
-            rz[j,i] = a.rden('d%dt%02dNi/Ni'%(j,i), header='zb')
-            rf[j,i] = a.rden('d%dt%02dNi/Ni'%(j,i), header='zf')
+            rz[j,i] = a.rden('tmp/dtNi/d%dt%02dNi/Ni'%(j,i), header='zb')
+            rf[j,i] = a.rden('tmp/dtNi/d%dt%02dNi/Ni'%(j,i), header='zf')
 
     for j in range(ide, nde+ide):
-        plot(rz[j], ry[j], label=r'$\rho=%g$'%ds[j], marker='o')
+        #plot(rz[j], ry[j], label=r'$\rho=%g$'%ds[j], marker='o')
         plot(rf[j], ry[j], label=r'$\rho=%g$'%ds[j], marker='o')
     xlabel('Zbar')                   
     ylabel(r'range (mg/cm$^2$)')
@@ -582,8 +582,7 @@ def pnit(ide=0, nde=0):
     ylim(3,20)
     legend()
     
-    savefig('nit%d_range.png'%(ide))
-    savefig('nit%d_range.pdf'%(ide))
+    savefig('tmp/nit%d_range.pdf'%(ide))
     
 def palt(ide=0, nde=0):
     plt.rcParams.update({'font.size':15})
@@ -603,14 +602,14 @@ def palt(ide=0, nde=0):
     a = aa.AA()
     for j in range(nd):
         for i in range(nt):
-            r = rdedx('d%dt%02dAl'%(j,i))
+            r = rdedx('tmp/dtAl/d%dt%02dAl'%(j,i))
             fi = interpolate.interp1d(r[0], r[2])
             ry[j,i] = fi(1.6)
-            rz[j,i] = a.rden('d%dt%02dAl/Al'%(j,i), header='zb')
-            rf[j,i] = a.rden('d%dt%02dAl/Al'%(j,i), header='zf')
+            rz[j,i] = a.rden('tmp/dtAl/d%dt%02dAl/Al'%(j,i), header='zb')
+            rf[j,i] = a.rden('tmp/dtAl/d%dt%02dAl/Al'%(j,i), header='zf')
 
     for j in range(ide,nde+ide):
-        plot(rz[j], ry[j], label=r'$\rho=%g$'%ds[j], marker='o')
+        #plot(rz[j], ry[j], label=r'$\rho=%g$'%ds[j], marker='o')
         plot(rf[j], ry[j], label=r'$\rho=%g$'%ds[j], marker='o')
     xlabel('Zbar')                   
     ylabel(r'range (mg/cm$^2$)')
@@ -619,8 +618,7 @@ def palt(ide=0, nde=0):
     ylim(3,12)
     legend()
     
-    savefig('alt%d_range.png'%(ide))
-    savefig('alt%d_range.pdf'%(ide))
+    savefig('tmp/alt%d_range.pdf'%(ide))
     
 def pfit():
     clf()
