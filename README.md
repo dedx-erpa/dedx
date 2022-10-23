@@ -23,7 +23,8 @@ Instructions for running dedx.py:
 
 1. Download and install FAC from https://github.com/flexible-atomic-code,  
    which is needed for computing electron density distributions with  
-   average atom models   
+   average atom models. The latest version in the master branch is required.
+   Previous releases of FAC is not compatible with dedx-erpa.  
 
 2. Modify Makefile and compile dedx.f using make  
 

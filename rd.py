@@ -251,7 +251,7 @@ def plot_eloss(a, dx, ds=['dt0', 'dt1', 'dt2'],
             c = 0.0
     cols = ['k','b','r','m','g','y']
     for i in range(len(ds)):
-        r = rdedx('%s%s'%(ds[i],a))
+        r = rdedx('tmp/%s%s'%(ds[i],a))
         y = array([eloss(r[0]*mp, r[2]*mp, e, dx) for e in x])
         plot(x, y*1e3, label=labs[i], marker='o', color=cols[i])
         if c > 0:
