@@ -78,7 +78,7 @@ python dedx.py --zt=13 --aa=2 --d=2.7 --t=0.025 --od=ColdAl
    compounds may take a while to compute.  
 python dedx.py --zc='1,6,8' --wc='4,5,2' --aa=2 --d=1.35 --t=10.0 --od=MylarWDM  
 
-3. This is equivalent to example 1.
+3. This is equivalent to example 1.  
 python dedx.py --fc=Al --aa=2 --d=2.7 --t=0.025 --od=ColdAl  
 
 4. This is equivalent to example 2.  

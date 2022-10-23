@@ -476,15 +476,14 @@ def pbd():
     ds = 4*10**linspace(0.0, 5.0, nd)
     clf()
     for i in range(nd):
-        r = rdedx('d%dB'%i)
+        r = rdedx('tmp/d%dB'%i)
         loglog(r[0], r[1], label=r'$\rho$=%d g/cc'%(int(ds[i])))
     xlabel('Energy (MeV)')                   
     ylabel(r'dE/dx ($10^{-15}$ eV cm$^2$/atom)')
 
     legend()
     
-    savefig('bd_dedx.png')
-    savefig('bd_dedx.pdf')
+    savefig('tmp/bd_dedx.pdf')
     
 def pbt(ide):
     plt.rcParams.update({'font.size':15})
@@ -498,29 +497,27 @@ def pbt(ide):
     for i in range(nt):
         if i > 0 and i < 6:
             continue
-        r = rdedx('d%dt%02dB'%(ide,i))
+        r = rdedx('tmp/dtB/d%dt%02dB'%(ide,i))
         loglog(r[0], r[1], label=r'T=%g eV'%(int(ts[i])))
     xlabel('Energy (MeV)')                   
     ylabel(r'dE/dx ($10^{-15}$ eV cm$^2$/atom)')
     title(r'$\rho$=%g g/cc'%ds[ide])
     legend()
     
-    savefig('bt%d_dedx.png'%(ide))
-    savefig('bt%d_dedx.pdf'%(ide))
+    savefig('tmp/bt%d_dedx.pdf'%(ide))
     
     plt.rcParams.update({'font.size':15})
     plt.subplots_adjust(bottom=0.15,top=0.9,left=0.15,right=0.95)
     clf()
     for i in range(nt):
-        r = rdedx('d%dt%02dB'%(ide,i))
+        r = rdedx('tmp/dtB/d%dt%02dB'%(ide,i))
         loglog(r[0], r[2]/1e3, label=r'T=%g eV'%(int(ts[i])))
     xlabel('Energy (MeV)')         
     ylabel('Proton Range (g/cm$^2$)')          
     title(r'$\rho$=%g g/cc'%ds[ide])
     legend()
     
-    savefig('bt%d_range.png'%ide)
-    savefig('bt%d_range.pdf'%ide)
+    savefig('tmp/bt%d_range.pdf'%ide)
 
 def pct(ide=0):
     plt.rcParams.update({'font.size':15})
