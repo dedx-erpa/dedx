@@ -23,7 +23,7 @@ c ******************************************************************** c
       dimension a(10), fits(nex), temp(50), deni(50)
 
       common /lhtab/eione(50),epk(30),rl(30),cl(50,30),cl0(50,30),
-     +     neee,nrho,xte,xte0,xepa,xepb,xepc,xepd
+     +     evf2(30),eve2(30),neee,nrho,xte,xte0,xepa,xepb,xepc,xepd
       common / hlbdy / elow, ehig, epeak
       common /rrang/range(50,50,200)
 
@@ -218,7 +218,6 @@ c .... compute Lindhard's stopping number
 c ----------------------------------------
          tt0 = ttt
          ttt = max(ttt,0.025)
-
          rewind (12)
          icb = 1
          if (mloss .ge. 100) then
@@ -303,18 +302,13 @@ c ----------------------------
 c
 c ... readin radial mesh and electron charge dnesity function
 c ------------------------------------------------------------
-            read(2,*) t, d            
+            read(2,*) tdum, ddum            
             read(2,*) nrd,h,rs
             read(2,*) (r(i),  i=1,nrd)
             read(2,*) (dr(i), i=1,nrd)
             read(2,*) (rho0(i),i=1,nrd)
             read(2,*) (rhof(i),i=1,nrd)
             read(2,*) (rhoe(i),i=1,nrd)
-c            chkt = abs(t-temp(it))
-c            chkd = abs(d-deni(id))
-c            if(chkt.gt.1.0e-3 .or. chkd.gt.1.0e-3) 
-c     :      stop 'input data not match !!!'
-
             do i=1,nrd
                if(rho0(i).lt.0) rho0(i) = abs(rho0(i))
                if(r(i).ge.rs) then
@@ -530,7 +524,7 @@ c
       function vlhfit(e0,r0,re,rf,te,ze,md)
       implicit real*8 (a-h,o-z)
       common /lhtab/etab(50),epk(30),rtab(30),
-     +     vlhtab(50,30),vlhtab0(50,30),
+     +     vlhtab(50,30),vlhtab0(50,30),evf2(30),eve2(30),
      +     neee,nrho,xte,xte0,xepa,xepb,xepc,xepd
 
       ex = e0
@@ -594,11 +588,17 @@ c
 
       if (indr1 .eq. indr2) then
          ep = epk(indr1)
+         vf2 = evf2(indr1)
+         ve2 = eve2(indr1)
       else
          ep = epk(indr1) + (rx-rtab(indr1))*
      +        (epk(indr2)-epk(indr1))/(rtab(indr2)-rtab(indr1))
+         vf2 = evf2(indr1) + (rx-rtab(indr1))*
+     +        (evf2(indr2)-evf2(indr1))/(rtab(indr2)-rtab(indr1))
+         ve2 = eve2(indr1) + (rx-rtab(indr1))*
+     +        (eve2(indr2)-eve2(indr1))/(rtab(indr2)-rtab(indr1))
       endif
-
+      xft = (vf2/((5./3.0)*ve2))**2
       xn = r0/6.748333e24
       xb = (r0-rf)/6.748333e24
       if (re .gt. 0) then
@@ -638,14 +638,14 @@ c
          else
             ec = 1e3;
          endif
-         ec = ep*max(ec, 0.05)
+         ec = ep*max(ec, 0.05)/xft
          vf = 0.5*log10(ec/e0)
          if (vf .gt. 10) then
             vf = 0.0
          else
             vf = exp(-10**vf)
          endif
-         yb = yb * vf
+         yb = yb * vf*xft
          yb = max(yb, 0.0)
          if (md .lt. 0) then
             vlhfit = yb
@@ -846,7 +846,7 @@ CDIR$  IVDEP
       implicit real*8 (a-h,o-z)
 
       common /lhtab/eione(50),epk(30),rl(30),cl(50,30),cl0(50,30),
-     +     neee,nrho,xte,xte0,xepa,xepb,xepc,xepd
+     +     evf2(30),eve2(30),neee,nrho,xte,xte0,xepa,xepb,xepc,xepd
 
       md = mod(md0,10)
       md1 = md
@@ -868,8 +868,10 @@ c      write(*,*) nttt, nrho, neee
             endif
             read(3, 105) jj, rhoj
             rl(j) = log10(rhoj)
-            call fpeak(rhoj, ttt, ep)
+            call fpeak(rhoj, ttt, ep, vf2, ve2)
             epk(j) = ep
+            evf2(j) = vf2
+            eve2(j) = ve2
             do k = 1, neee
                read(3, *) ttti, rhoji, ek, cl1, cl2, cl3, cl4, cl5, cl6
                kk = neee-k+1
@@ -922,7 +924,7 @@ c
       subroutine lindh(ttt)
       implicit real*8 (a-h,o-z)
       common /lhtab/eione(50),epk(30),rl(30),cl(50,30),cl0(50,30),
-     +     neee,nrho,xte,xte0,xepa,xepb,xepc,xepd
+     +     evf2(30),eve2(30),neee,nrho,xte,xte0,xepa,xepb,xepc,xepd
       dimension  rho(30)
 
       pi = 3.1415926
@@ -1006,54 +1008,6 @@ c     c
       
       return
       end
-
-      subroutine fpeak1(rho, te, epk)
-      implicit real*8 (a-h,o-z)
-
-      xn = rho/6.75e24
-      wp = 3.545*sqrt(xn)
-      xk = 3.094*xn**0.3333
-      ef = xk*xk*27.21
-      ep = sqrt(ef*ef+te*te)*1.823e-3
-      call lindt(ep, rho, te, yp, ep0)
-      yp = yp/sqrt(ep)
-      miter = 256
-      epk = ep
-      ep1 = 0.0
-      yp1 = yp
-      ep2 = 0.0
-      yp2 = yp
-      do i=1,miter
-         epk = epk*1.025
-         call lindt(epk, rho, te, ypk, ep0)
-         ypk = ypk/epk
-         if (ypk .gt. yp1) then
-            ep1 = epk
-            yp1 = ypk
-         else
-            ep2 = epk
-            yp2 = ypk
-            exit
-         endif
-      enddo
-      if (ep1 .lt. ep) then
-         epk = ep
-         do i = 1, miter
-            epk = epk/1.025
-            call lindt(epk, rho, te, ypk, ep0)
-            ypk = ypk/epk
-            if (ypk .gt. yp2) then
-               ep2 = epk
-               yp2 = ypk
-            else
-               ep1 = epk
-               yp1 = ypk
-               exit
-            endif
-         enddo
-      endif
-      epk = sqrt(ep1*ep2)
-      end            
       
 c ************************************************************************
 c 
@@ -1546,7 +1500,7 @@ c
        end
 
  
-      subroutine fpeak(rho, t, epk)
+      subroutine fpeak(rho, t, epk, vf2, ve2)
       implicit real*8 (a-h,o-z)
       dimension vii(10), vlhp(10)
 
@@ -1587,7 +1541,8 @@ c     reduce temperature
       te = t/(27.2116*ef)
 c     plasma frequency
       wp = sqrt(4*pi*rho*e**2/emass)
-
+      vf2 = vf**2
+      
       if (te .gt. 1e-10) then
 c
 c ... chemical potential
@@ -1601,9 +1556,9 @@ c
 c  determine the cut point between the 'high' and low': Vint
 c -----------------------------------------------------------
 
-         ve2 = vf**2 * te * fd(f32,alpha)/fd(f12,alpha)
+         ve2 = vf2 * te * fd(f32,alpha)/fd(f12,alpha)
       else
-         ve2 = 0.0
+         ve2 = vf2
       endif
       cnt = hbar*wp/emass
       vint= sqrt(1.5*(ve2 + cnt))

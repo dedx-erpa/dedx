@@ -93,6 +93,10 @@ p.add_option('--pmi', dest='pmi', type='int',
              default=0, help='pmi param of aa.AA')
 p.add_option('--v', dest='v', type='int',
              default=0, help='verbose level')
+p.add_option('--maa', dest='maa', type='int',
+             default=1, help='mode of compound aa model')
+p.add_option('--npaa', dest='npaa', type='int',
+             default=1, help='num. proc for aa model')
 p.add_option('--epa', dest='epa', type='float',
              default=-1e11, help='epa param')
 p.add_option('--epb', dest='epb', type='float',
@@ -151,8 +155,8 @@ if opts.aa > 1:
     if len(zc) > 0:
         if opts.v > 0:
             print('running avgatom zc=%s wc=%s fc=%s d=%g t=%g'%(opts.zc, opts.wc, opts.fc, opts.d, taa))
-        a = aa.AA(z=zc, d=opts.d, t=taa, wm=wc, dd=opts.od, bqp=opts.bqp, sc=opts.sc, pmi=opts.pmi)
-        a.run()
+        a = aa.AA(z=zc, d=opts.d, t=taa, wm=wc, dd=opts.od, bqp=opts.bqp, sc=opts.sc, pmi=opts.pmi, nc=opts.npaa)
+        a.run(opts.maa)
         t1 = time.time()
         if opts.v > 0:
             print('done avgatom zc=%s wc=%s fc=%s d=%g t=%g in %10.3E'%(opts.zc, opts.wc, opts.fc, opts.d, taa,(t1-t0)))

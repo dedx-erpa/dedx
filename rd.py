@@ -254,12 +254,6 @@ def plot_eloss(a, dx, ds=['dt0', 'dt1', 'dt2'],
         r = rdedx('tmp/%s%s'%(ds[i],a))
         y = array([eloss(r[0]*mp, r[2]*mp, e, dx) for e in x])
         plot(x, y*1e3, label=labs[i], marker='o', color=cols[i])
-        if c > 0:
-            f = interpolate.interp1d(r[0]*mp,r[1]*c)
-            y1 = f(x)*dx
-            for j in range(10):
-                y1 = f(x-0.5*y1/1e3)*dx
-            plot(x, y1, linestyle='--', color=cols[i])
     if mp == 2:
         xlabel('Deuteron Energy (MeV)')
     else:
