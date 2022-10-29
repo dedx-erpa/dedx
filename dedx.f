@@ -28,9 +28,9 @@ c ******************************************************************** c
       common /rrang/range(50,50,200)
 
       data xepa /1.0/
-      data xepb /1.0372/
-      data xepc /-1.3231/
-      data xepd /0.7128/      
+      data xepb /1.67/
+      data xepc /-1.67/
+      data xepd /1.136/      
       
       namelist /dedxinp/zzp, qmass, ztg, amass, mep, emin, emax,
      +     mloss, mout, dinp, tinp, epa,epb,epc,epd

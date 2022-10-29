@@ -393,6 +393,7 @@ def pden(s, rs=1, ys=1, dd='data'):
     od = '%s/%s'%(dd,s)
     h = rdedx(od, header='')
     zt = h['zt']
+    
     clf()
     for iz in range(len(zt)):
         z = int(zt[iz])
@@ -526,6 +527,10 @@ def pct(ide=0):
     for i in range(nt):
         r = rdedx('tmp/d%dt%02dC'%(ide,i))
         plot(r[0], r[1]*a, label=r'T=%g eV'%(int(ts[i])))
+    r0 = rdedx('data/C')
+    r1 = rpstar('data/C')
+    plot(r0[0], r0[1]*a, label='Solid')
+    plot(r1[0], r1[1]*a, label='PSTAR')
     xlim(0, 1.0)
     ylim(0, 1.2)
     d = loadtxt('tmp/malko_fig.txt', unpack=1)
@@ -587,27 +592,30 @@ def palt(ide=0, nde=0):
     if nde == 0:
         nde = nd
     clf()
+    rt = zeros((nd,nt))
     ry = zeros((nd,nt))
     rz = zeros((nd,nt))
-    rf = zeros((nd,nt))
+    rf = zeros((nd,nt))    
     a = aa.AA()
     for j in range(nd):
         for i in range(nt):
             r = rdedx('tmp/dtAl/d%dt%02dAl'%(j,i))
             fi = interpolate.interp1d(r[0], r[2])
             ry[j,i] = fi(1.6)
-            rz[j,i] = a.rden('tmp/dtAl/d%dt%02dAl/Al'%(j,i), header='zb')
-            rf[j,i] = a.rden('tmp/dtAl/d%dt%02dAl/Al'%(j,i), header='zf')
-
+            h = a.rden('tmp/dtAl/d%dt%02dAl/Al'%(j,i), header='')
+            rt[j,i] = h['T']
+            rz[j,i] = h['ub']
+            rf[j,i] = h['zf']
     for j in range(ide,nde+ide):
         #plot(rz[j], ry[j], label=r'$\rho=%g$'%ds[j], marker='o')
         plot(rf[j], ry[j], label=r'$\rho=%g$'%ds[j], marker='o')
+        #semilogx(rt[j], rf[j],marker='o')
     xlabel('Zbar')                   
     ylabel(r'range (mg/cm$^2$)')
     title('Proton in Al')
     xlim(-1,12)
     ylim(3,12)
-    legend()
+    #legend()
     
     savefig('tmp/alt%d_range.pdf'%(ide))
     

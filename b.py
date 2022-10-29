@@ -25,5 +25,5 @@ if (nz == 0):
     if a0 != '':
         mprun.run1zp(a0, aa=aa)
 else:
-    mprun.run_azs(mprun.ss[iz0:iz0+nz], np=np)
+    mprun.run_azs(mprun.ss[iz0:iz0+nz], np=np, aa=0)
     
