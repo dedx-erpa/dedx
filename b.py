@@ -15,6 +15,8 @@ if na > 1:
         a0 = sys.argv[1]
     if (len(sys.argv)>2):
         nz = int(sys.argv[2])
+        if nz < 0:
+            nz = len(mprun.zs)
         if (len(sys.argv)>3):
             np = int(sys.argv[3])
             if (len(sys.argv) > 4):
@@ -25,5 +27,5 @@ if (nz == 0):
     if a0 != '':
         mprun.run1zp(a0, aa=aa)
 else:
-    mprun.run_azs(mprun.ss[iz0:iz0+nz], np=np, aa=0)
+    mprun.run_azs(mprun.ss[iz0:iz0+nz], np=np, aa=aa)
     

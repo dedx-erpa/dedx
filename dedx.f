@@ -28,9 +28,9 @@ c ******************************************************************** c
       common /rrang/range(50,50,200)
 
       data xepa /1.0/
-      data xepb /1.67/
-      data xepc /-1.67/
-      data xepd /1.136/      
+      data xepb /1.35/
+      data xepc /-1.7/
+      data xepd /1.03/      
       
       namelist /dedxinp/zzp, qmass, ztg, amass, mep, emin, emax,
      +     mloss, mout, dinp, tinp, epa,epb,epc,epd
@@ -81,9 +81,6 @@ c      open(unit=11,file=odir(1:len1)//'/lh.dat', status='unknown')
 c      open(unit=12,file=odir(1:len1)//'/lh.tab', status='unknown')      
 c      open(unit=13,file=odir(1:len1)//'/dedx.dat', status='unknown')
       open(unit=14,file=odir(1:len1)//'/dedx.dat', status='unknown')
-      if (mout .gt. 0) then
-         open(unit=15,file=odir(1:len1)//'/rdedx.dat',status='unknown')
-      endif
 c
 c ... namelist input      
 c     
@@ -98,6 +95,10 @@ c
       close(17, status='delete')
  9999 format(a)
 
+      if (mout .gt. 0) then
+         open(unit=15,file=odir(1:len1)//'/rdedx.dat',status='unknown')
+      endif
+      
       if (epa .gt. -1e10) then
          xepa = epa
       endif

@@ -136,16 +136,20 @@ def rcdedx(od):
     r = r.reshape((3,nx,nd))
     return d,r
 
-def plot_rcdedx(d,r,i):
+def plot_rcdedx(d,r,i,nm=0):
     clf()
     plt.rcParams.update({'font.size':15})
     plt.subplots_adjust(bottom=0.15,top=0.9,left=0.15,right=0.95)
-    plot(d[0], d[1]/max(d[1]), label=r'$4\pi r^2 \rho(r)$')
+    if nm == 0:
+        ym = 1.0
+    else:
+        ym = max(r[1,i]/d[0])
+    plot(d[0], ym*d[1]/max(d[1]), label=r'$4\pi r^2 \rho(r)$')
     y = r[1,i]/d[0]/d[1]
-    plot(d[0], y/max(y), label=r'$L(r)$')
+    plot(d[0], ym*y/max(y), label=r'$L(r)$')
     y = r[1,i]/d[0]
-    plot(d[0], y/max(y), label=r'$4\pi r^2 \rho(r) L(r)$')
-    plot(d[0], r[2,i], label=r'$\int_0^r 4\pi r^2\rho(r)L(r)dr$')
+    plot(d[0], ym*y/max(y), label=r'$4\pi r^2 \rho(r) L(r)$',marker='.')
+    plot(d[0], ym*r[2,i], label=r'$\int_0^r 4\pi r^2\rho(r)L(r)dr$')
     xlabel('radius (atomic unit)')
     ylabel('arb. unit')
     title('E=%4.2f keV'%(1e3*r[0,i,0]))    
@@ -356,6 +360,22 @@ def cmp_dedx(zt, xsc='e', dpass=1, atima=1, pstar=1):
     ylabel(r'dE/dx ($10^{-15}$ eV cm$^2$/atom)')
     title('Target=%s'%a)    
     legend()
+
+def plot_miter(zs = dts.ss):
+    a = aa.AA()
+    yz = []
+    for z in zs:
+        if type(z) == type(0):
+            z = fac.ATOMICSYMBOL[z]
+        od = 'data/%s'%z
+        h = rdedx(od, header='')
+        zt = h['zt']
+        for x in zt:
+            r = a.rpot('%s/%s'%(od,fac.ATOMICSYMBOL[int(x)]),header='')
+            yz.append(r['miter'])
+    xz = arange(len(yz))
+    clf()
+    plot(xz, yz, marker='.')
     
 def gen_plots(zs = dts.ss, mrc=0):
     for z in zs:
@@ -544,7 +564,67 @@ def pct(ide=0):
     savefig('tmp/ct%d_dedx.png'%(ide))
     savefig('tmp/ct%d_dedx.pdf'%(ide))
     
-def pnit(ide=0, nde=0):
+def paut(ide=0, nde=0, md=0):
+    plt.rcParams.update({'font.size':15})
+    plt.subplots_adjust(bottom=0.15,top=0.9,left=0.15,right=0.95)
+
+    ds = [0.19311, 1.9311, 19.311]
+    ts = 10**linspace(-1,4.,35)
+
+    nd = len(ds)
+    if nde == 0:
+        nde = nd
+    nt = len(ts)
+    clf()
+    rt = zeros((nd,nt))
+    ry = zeros((nd,nt))
+    rz = zeros((nd,nt))
+    rf = zeros((nd,nt))
+    mi = zeros((nd,nt))
+    a = aa.AA()
+    for j in range(nd):
+        for i in range(nt):
+            r = rdedx('tmp/dtAu/d%dt%02dAu'%(j,i))
+            fi = interpolate.interp1d(r[0], r[2])
+            ry[j,i] = fi(1.6)
+            h = a.rden('tmp/dtAu/d%dt%02dAu/Au'%(j,i), header='')
+            rt[j,i] = h['T']
+            rz[j,i] = h['ub']
+            rf[j,i] = h['zf']
+            h = a.rpot('tmp/dtAu/d%dt%02dAu/Au'%(j,i), header='')
+            mi[j,i] = h['miter']
+            if (mi[j,i]>100):
+                print([j,i,mi[j,i]])
+    for j in range(ide,nde+ide):
+        lab = r'$\rho=%g$'%ds[j]
+        if md == 0:
+            plot(rf[j], ry[j], label=lab, marker='o')
+        elif md == 1:
+            semilogx(rt[j], rz[j], label=lab, marker='o')
+        elif md == 2:
+            semilogx(rt[j], rf[j], label=lab, marker='o')
+        else:
+            semilogx(rt[j], mi[j], label=lab, marker='o')
+    if md == 0:
+        xlabel('Zbar')                   
+        ylabel(r'range (mg/cm$^2$)')
+        xlim(-1,75)
+        ylim(10,50)
+    elif md == 1:
+        xlabel('Temerature')
+        ylabel(r'$\mu$')              
+    elif md == 2:
+        xlabel('Temperature')
+        ylabel('Zbar')
+    else:
+        xlabel('Temperature')
+        ylabel('max iter')
+    title('Proton in Au')
+    legend()
+    
+    savefig('tmp/aut%d_range.pdf'%(ide))    
+    
+def pnit(ide=0, nde=0, md=0):
     plt.rcParams.update({'font.size':15})
     plt.subplots_adjust(bottom=0.15,top=0.9,left=0.15,right=0.95)
 
@@ -559,28 +639,53 @@ def pnit(ide=0, nde=0):
     ry = zeros((nd,nt))
     rz = zeros((nd,nt))
     rf = zeros((nd,nt))
+    rt = zeros((nd,nt))
+    mi = zeros((nd,nt))
     a = aa.AA()
     for j in range(nd):
         for i in range(nt):
             r = rdedx('tmp/dtNi/d%dt%02dNi'%(j,i))
             fi = interpolate.interp1d(r[0], r[2])
             ry[j,i] = fi(1.6)
-            rz[j,i] = a.rden('tmp/dtNi/d%dt%02dNi/Ni'%(j,i), header='zb')
-            rf[j,i] = a.rden('tmp/dtNi/d%dt%02dNi/Ni'%(j,i), header='zf')
-
-    for j in range(ide, nde+ide):
-        #plot(rz[j], ry[j], label=r'$\rho=%g$'%ds[j], marker='o')
-        plot(rf[j], ry[j], label=r'$\rho=%g$'%ds[j], marker='o')
-    xlabel('Zbar')                   
-    ylabel(r'range (mg/cm$^2$)')
+            h = a.rden('tmp/dtNi/d%dt%02dNi/Ni'%(j,i), header='')
+            rt[j,i] = h['T']
+            rz[j,i] = h['ub']
+            rf[j,i] = h['zf']
+            h = a.rpot('tmp/dtNi/d%dt%02dNi/Ni'%(j,i), header='')
+            mi[j,i] = h['miter']
+            if (mi[j,i]>100):
+                print([j,i,mi[j,i]])
+    for j in range(ide,nde+ide):
+        lab = r'$\rho=%g$'%ds[j]
+        if md == 0:
+            plot(rf[j], ry[j], label=lab, marker='o')
+        elif md == 1:
+            semilogx(rt[j], rz[j], label=lab, marker='o')
+        elif md == 2:
+            semilogx(rt[j], rf[j], label=lab, marker='o')
+        else:
+            semilogx(rt[j], mi[j], label=lab, marker='o')
+    if md == 0:
+        xlabel('Zbar')                   
+        ylabel(r'range (mg/cm$^2$)')
+        xlim(-1,26)
+        ylim(3,20)
+    elif md == 1:
+        xlabel('Temerature')
+        ylabel(r'$\mu$')              
+    elif md == 2:
+        xlabel('Temperature')
+        ylabel('Zbar')
+    else:
+        xlabel('Temperature')
+        ylabel('max iter')
+        
     title('Proton in Ni')
-    xlim(-1,26)
-    ylim(3,20)
     legend()
     
     savefig('tmp/nit%d_range.pdf'%(ide))
     
-def palt(ide=0, nde=0):
+def palt(ide=0, nde=0, md=0):
     plt.rcParams.update({'font.size':15})
     plt.subplots_adjust(bottom=0.15,top=0.9,left=0.15,right=0.95)
 
@@ -595,7 +700,8 @@ def palt(ide=0, nde=0):
     rt = zeros((nd,nt))
     ry = zeros((nd,nt))
     rz = zeros((nd,nt))
-    rf = zeros((nd,nt))    
+    rf = zeros((nd,nt))
+    mi = zeros((nd,nt))
     a = aa.AA()
     for j in range(nd):
         for i in range(nt):
@@ -606,16 +712,37 @@ def palt(ide=0, nde=0):
             rt[j,i] = h['T']
             rz[j,i] = h['ub']
             rf[j,i] = h['zf']
+            h = a.rpot('tmp/dtAl/d%dt%02dAl/Al'%(j,i), header='')
+            mi[j,i] = h['miter']
+            if (mi[j,i]>100):
+                print([j,i,mi[j,i]])
     for j in range(ide,nde+ide):
-        #plot(rz[j], ry[j], label=r'$\rho=%g$'%ds[j], marker='o')
-        plot(rf[j], ry[j], label=r'$\rho=%g$'%ds[j], marker='o')
-        #semilogx(rt[j], rf[j],marker='o')
-    xlabel('Zbar')                   
-    ylabel(r'range (mg/cm$^2$)')
+        lab = r'$\rho=%g$'%ds[j]
+        if md == 0:
+            plot(rf[j], ry[j], label=lab, marker='o')
+        elif md == 1:
+            semilogx(rt[j], rz[j], label=lab, marker='o')
+        elif md == 2:
+            semilogx(rt[j], rf[j], label=lab, marker='o')
+        else:
+            semilogx(rt[j], mi[j], label=lab, marker='o')
+    if md == 0:
+        xlabel('Zbar')                   
+        ylabel(r'range (mg/cm$^2$)')
+        xlim(-1,12)
+        ylim(3,12)
+    elif md == 1:
+        xlabel('Temerature')
+        ylabel(r'$\mu$')              
+    elif md == 2:
+        xlabel('Temperature')
+        ylabel('Zbar')
+    else:
+        xlabel('Temperature')
+        ylabel('max iter')
+        
     title('Proton in Al')
-    xlim(-1,12)
-    ylim(3,12)
-    #legend()
+    legend()
     
     savefig('tmp/alt%d_range.pdf'%(ide))
     
