@@ -18,22 +18,24 @@ c ******************************************************************** c
       
       dimension r(nrx), dr(nrx),   rho(nrx), rhol(nrx), sum(nrx)
       dimension ee(npx), elog(npx), dedx(npx), dedxt(50,50,200)
-      dimension rhof(nrx),rho0(nrx),rhoe(nrx),fdedx(npx),rhofl(npx)
+      dimension rhof(nrx),rho0(nrx),rhoe(nrx),vzt(nrx)
+      dimension fdedx(npx),rhofl(npx)
       dimension rdedx(nre,nrx), cdedx(nre,nrx), rage(npx)
       dimension a(10), fits(nex), temp(50), deni(50)
 
       common /lhtab/eione(50),epk(30),rl(30),cl(50,30),cl0(50,30),
-     +     evf2(30),eve2(30),neee,nrho,xte,xte0,xepa,xepb,xepc,xepd
+     +     evf2(30),eve2(30),neee,nrho,xte,xte0,xepa,xepb,xepc,xepd,xepe
       common / hlbdy / elow, ehig, epeak
       common /rrang/range(50,50,200)
 
       data xepa /1.0/
-      data xepb /1.35/
-      data xepc /-1.7/
-      data xepd /1.03/      
+      data xepb /1.2/
+      data xepc /-1.93/
+      data xepd /1.2/
+      data xepe /0.25/
       
       namelist /dedxinp/zzp, qmass, ztg, amass, mep, emin, emax,
-     +     mloss, mout, dinp, tinp, epa,epb,epc,epd
+     +     mloss, mout, dinp, tinp, epa,epb,epc,epd,epe
 
 c                                                                      c
 c ************************* START THE EXECUTION ********************** c
@@ -43,6 +45,7 @@ c                                                                      c
       epb = -1e11
       epc = -1e11
       epd = -1e11
+      epe = -1e11
       
       Pi = 3.1415926
 c     proton mass in g
@@ -111,6 +114,9 @@ c
       if (epd .gt. -1e10) then
          xepd = epd
       endif
+      if (epe .gt. -1e10) then
+         xepe = epe
+      endif
       acoef = 6.023d20/amass
       bcoef = acoef*1d-21
 c     write(*,*) mep, emin, emax
@@ -152,6 +158,7 @@ c
             read(2,*) (rho0(i),i=1,nrd)
             read(2,*) (rhof(i),i=1,nrd)
             read(2,*) (rhoe(i),i=1,nrd)
+            read(2,*) (vzt(i),i=1,nrd)
          enddo
       enddo
       rewind (2)
@@ -222,7 +229,11 @@ c ----------------------------------------
          rewind (12)
          icb = 1
          if (mloss .ge. 100) then
-            icb = 0
+            if (mloss .ge. 200) then
+               icb = 2
+            else
+               icb = 0
+            endif
             mloss = mod(mloss, 100)
          endif
          mloss1 = mod(mloss, 10)
@@ -310,6 +321,7 @@ c ------------------------------------------------------------
             read(2,*) (rho0(i),i=1,nrd)
             read(2,*) (rhof(i),i=1,nrd)
             read(2,*) (rhoe(i),i=1,nrd)
+            read(2,*) (vzt(i),i=1,nrd)
             do i=1,nrd
                if(rho0(i).lt.0) rho0(i) = abs(rho0(i))
                if(r(i).ge.rs) then
@@ -326,6 +338,7 @@ c ----------------------------------
             
             do i=1,nrd
                rho(i) = rhof(i)*dr(i)*r(i)
+               vzt(i) = vzt(i) * 27.21
             enddo
             call intgrl(nrd,+h,rho,sum,rh1)
             zbar=cubint(rs,nrd,r,sum,nrd)
@@ -353,7 +366,7 @@ c     ---------------------------
                   rho(k) = rho0(k)
                   fpr = 4*pi*r(k)**2
                   q = 6.748333e24*(rho(k))/fpr
-                  if (icb .gt. 0) then
+                  if (icb .eq. 1) then
                      qe = rhoe(k)/fpr-qe0
                      if (qe .gt. 0) then
                         qe = 6.748333e24*xepa*qe
@@ -365,6 +378,13 @@ c     ---------------------------
                   endif
                   qf = 6.748333e24*rhof(k)/fpr
                   xcl = vlhfit(eion, q, qe, qf, ttt, zeff, mloss)
+                  if (icb .eq. 2 .and. vzt(k) .gt. 0) then
+                     call lindt(eion, q, ttt, xcl0, epk0)
+                     if (xcl0 .gt. 0) then
+                        call lindt(eion, q, vzt(k), xcl1, epk1)
+                        xcl = xcl*(xcl1/xcl0)
+                     endif
+                  endif
 c                  ycl = vlhfit(eion, qf, 0.0, qf, ttt, zeff, mloss)
                   rhol(k) = rho(k)*xcl*r(k)*dr(k)
 c                  rhofl(k) = rhof(k)*ycl*r(k)*dr(k)
@@ -526,7 +546,7 @@ c
       implicit real*8 (a-h,o-z)
       common /lhtab/etab(50),epk(30),rtab(30),
      +     vlhtab(50,30),vlhtab0(50,30),evf2(30),eve2(30),
-     +     neee,nrho,xte,xte0,xepa,xepb,xepc,xepd
+     +     neee,nrho,xte,xte0,xepa,xepb,xepc,xepd,xepe
 
       ex = e0
       rx = log10(max(1d-10,r0))
@@ -847,7 +867,7 @@ CDIR$  IVDEP
       implicit real*8 (a-h,o-z)
 
       common /lhtab/eione(50),epk(30),rl(30),cl(50,30),cl0(50,30),
-     +     evf2(30),eve2(30),neee,nrho,xte,xte0,xepa,xepb,xepc,xepd
+     +     evf2(30),eve2(30),neee,nrho,xte,xte0,xepa,xepb,xepc,xepd,xepe
 
       md = mod(md0,10)
       md1 = md
@@ -925,7 +945,7 @@ c
       subroutine lindh(ttt)
       implicit real*8 (a-h,o-z)
       common /lhtab/eione(50),epk(30),rl(30),cl(50,30),cl0(50,30),
-     +     evf2(30),eve2(30),neee,nrho,xte,xte0,xepa,xepb,xepc,xepd
+     +     evf2(30),eve2(30),neee,nrho,xte,xte0,xepa,xepb,xepc,xepd,xepe
       dimension  rho(30)
 
       pi = 3.1415926

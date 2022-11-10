@@ -34,6 +34,7 @@ def prep_inp(opts, od, zt):
         f.write('  epb = %9.3e\n'%opts.epb)
         f.write('  epc = %9.3e\n'%opts.epc)
         f.write('  epd = %9.3e\n'%opts.epd)
+        f.write('  epe = %9.3e\n'%opts.epe)
         f.write('&end\n')
 
     if (opts.frho != '' and
@@ -96,7 +97,7 @@ p.add_option('--v', dest='v', type='int',
 p.add_option('--maa', dest='maa', type='int',
              default=1, help='mode of compound aa model')
 p.add_option('--npaa', dest='npaa', type='int',
-             default=1, help='num. proc for aa model')
+             default=0, help='num. proc for aa model')
 p.add_option('--epa', dest='epa', type='float',
              default=-1e11, help='epa param')
 p.add_option('--epb', dest='epb', type='float',
@@ -105,6 +106,8 @@ p.add_option('--epc', dest='epc', type='float',
              default=-1e11, help='epc param')
 p.add_option('--epd', dest='epd', type='float',
              default=-1e11, help='epd param')
+p.add_option('--epe', dest='epe', type='float',
+             default=-1e11, help='epe param')
 
 opts,args = p.parse_args()
 

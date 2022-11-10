@@ -21,8 +21,9 @@ def rden(od):
     s = r.shape
     n1 = int(s[0]*s[1]/n)
     r = transpose(r).reshape((n1,n))
-
-    return r[[0,2,3,4]]
+    w = list(range(n1))
+    w = w[:1]+w[2:]
+    return r[w]
 
 def raurho(ext='s'):
     d0 = loadtxt('output/z79s/AuRho1.txt', unpack=1)
@@ -538,8 +539,8 @@ def pct(ide=0):
     plt.rcParams.update({'font.size':15})
     plt.subplots_adjust(bottom=0.15,top=0.9,left=0.15,right=0.95)
 
-    ds = [0.5]
-    ts = [10, 20, 30]
+    ds = [0.05, 0.1, 0.5]
+    ts = [0.025, 10, 20, 30]
     nd = len(ds)
     nt = len(ts)
     clf()
@@ -552,13 +553,13 @@ def pct(ide=0):
     plot(r0[0], r0[1]*a, label='Solid')
     plot(r1[0], r1[1]*a, label='PSTAR')
     xlim(0, 1.0)
-    ylim(0, 1.2)
+    ylim(0, 1.5)
     d = loadtxt('tmp/malko_fig.txt', unpack=1)
     plot(d[0][::2]/1e3, d[1][::2], marker='o', color='k', label='DFT', linestyle='none')
     errorbar(d[0][::2]/1e3, d[1][::2], yerr=(d[1][1::2]-d[1][::2]), capsize=3, marker='o', color='k', linestyle='none')
     xlabel('Energy (MeV)')                   
     ylabel(r'dE/dx (keV/($\mu$g/cm$^2$))')
-    title(r'$\rho$=%g g/cc'%ds[0])
+    title(r'$\rho$=%g g/cc'%ds[ide])
     legend()
     
     savefig('tmp/ct%d_dedx.png'%(ide))
@@ -760,3 +761,13 @@ def pfit():
         semilogx(r[0], r[1], color=cs[i], label=fac.ATOMICSYMBOL[zs[i]])
     legend()
     
+def diffpr(f0, f1):
+    a = aa.AA()
+    r0 = a.rden(f0, header='')
+    r1 = a.rden(f1, header='')
+    de = (r1['vf']-r0['vf'])
+    dv = (4*pi/3)*(r1['rps']**3-r0['rps']**3)
+    c = 1.6e-19/(0.53e-10**3)/1e9
+    r = c*(-de/dv)
+    v = c*(((0.5*(r0['ve']+r0['vn'])+2*r0['ek'])/3-0.5*r0['vx'])/((4*pi/3)*r0['rps']**3))
+    return de,dv,r,v
