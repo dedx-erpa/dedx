@@ -408,14 +408,15 @@ def pden0(z):
     xlabel('radius (a.u.)')
     ylabel(r'$4\pi r^2\rho(r)$ (a.u.)')
 
-def pden(s, rs=1, ys=1, dd='data'):
+def pden(s, rs=1, ys=1, fd=0, dd='data', op=0):
     plt.rcParams.update({'font.size':15})
     plt.subplots_adjust(bottom=0.15,top=0.9,left=0.15,right=0.95)
     od = '%s/%s'%(dd,s)
     h = rdedx(od, header='')
     zt = h['zt']
-    
-    clf()
+
+    if op == 0:
+        clf()
     for iz in range(len(zt)):
         z = int(zt[iz])
         if (h['nzt'] == 1):
@@ -424,20 +425,31 @@ def pden(s, rs=1, ys=1, dd='data'):
             r = rden(od+'/'+fac.ATOMICSYMBOL[z])
         x = r[0].copy()
         d = r[1].copy()
+        f = r[2].copy()
         if ys == 1:
-            d = r[1]/(4*pi*x**2)
+            d = d/(4*pi*x**2)
+            f = f/(4*pi*x**2)
         if rs == 1:
             x /= x[-1]
+        elif rs == 2:
+            x = sqrt(x/x[-1])
         plot(x, d, label=fac.ATOMICSYMBOL[z])
+        if fd > 0:
+            plot(x, f, label=fac.ATOMICSYMBOL[z]+' free')
         if (ys == 1):
             yscale('log')
 
     legend()
     if rs == 1:
-        xlabel('normalized radius')
+        xlabel('r/rs')
+    elif rs == 2:
+        xlabel(r'$\sqrt{r/rs}$')
     else:
         xlabel('radius')
-    ylabel(r'$\rho(r)$')
+    if ys == 1:
+        ylabel(r'$\rho(r)$')
+    else:
+        ylabel(r'$4\pi r^2 \rho(r)$')
     title(s)
     
 def gen_den_plots():    

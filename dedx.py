@@ -59,7 +59,7 @@ p.add_option('--d', dest='d', type='float',
 p.add_option('--t', dest='t', type='float',
              default=1.0, help='temperature in eV')
 p.add_option('--taa', dest='taa', type='float',
-             default=0.5, help='min temp in eV to run avg atom model')
+             default=0.25, help='min temp in eV to run avg atom model')
 p.add_option('--frho', dest='frho', type='string',
              default='', help='rho file to copy')
 p.add_option('--od', dest='od', type='string',
@@ -80,6 +80,10 @@ p.add_option('--aa', dest='aa', type='int',
              default=2, help='generate aa density distribution')
 p.add_option('--bqp', dest='bqp', type='float',
              default=-1e12, help='aa boundary condition')
+p.add_option('--ewm', dest='ewm', type='int',
+             default=0, help='aa ewm param')
+p.add_option('--ewf', dest='ewf', type='float',
+             default=1.0, help='aa ewf param')
 p.add_option('--nr', dest='nr', type='int',
              default=600, help='number of radial grid')
 p.add_option('--rmin', dest='rmin', type='float',
@@ -158,7 +162,8 @@ if opts.aa > 1:
     if len(zc) > 0:
         if opts.v > 0:
             print('running avgatom zc=%s wc=%s fc=%s d=%g t=%g'%(opts.zc, opts.wc, opts.fc, opts.d, taa))
-        a = aa.AA(z=zc, d=opts.d, t=taa, wm=wc, dd=opts.od, bqp=opts.bqp, sc=opts.sc, pmi=opts.pmi, nc=opts.npaa)
+        a = aa.AA(z=zc, d=opts.d, t=taa, wm=wc, dd=opts.od, bqp=opts.bqp,
+                  ewm=opts.ewm, ewf=opts.ewf, sc=opts.sc, pmi=opts.pmi, nc=opts.npaa)
         a.run(opts.maa)
         t1 = time.time()
         if opts.v > 0:
@@ -166,7 +171,8 @@ if opts.aa > 1:
     else:
         if opts.v > 0:
             print('running avgatom z=%d d=%g t=%g ...'%(opts.zt,opts.d,taa))
-        a = aa.AA(z=opts.zt, d=opts.d, t=taa, dd=opts.od, bqp=opts.bqp, sc=opts.sc, pmi=opts.pmi)
+        a = aa.AA(z=opts.zt, d=opts.d, t=taa, dd=opts.od, bqp=opts.bqp,
+                  ewm=opts.ewm, ewf=opts.ewf, sc=opts.sc, pmi=opts.pmi)
         a.run()
         t1 = time.time()
         if opts.v > 0:

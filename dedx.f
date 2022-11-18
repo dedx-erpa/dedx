@@ -29,9 +29,9 @@ c ******************************************************************** c
       common /rrang/range(50,50,200)
 
       data xepa /1.0/
-      data xepb /0.9/
-      data xepc /-2.0/
-      data xepd /1.25/
+      data xepb /0.72/
+      data xepc /-1.5/
+      data xepd /1.2/
       data xepe /0.25/
       
       namelist /dedxinp/zzp, qmass, ztg, amass, mep, emin, emax,
@@ -659,14 +659,14 @@ c
          else
             ec = 1e3;
          endif
-         ec = ep*max(ec, 0.05)/xft
+         ec = ep*max(ec, 0.1)/xft
          vf = 0.5*log10(ec/e0)
          if (vf .gt. 10) then
             vf = 0.0
          else
             vf = exp(-10**vf)
          endif
-         yb = yb * vf*xft
+         yb = yb * vf*xft**2
          yb = max(yb, 0.0)
          if (md .lt. 0) then
             vlhfit = yb

@@ -2,7 +2,7 @@ from pfac import fac
 import os,sys
 import mprun
 
-np = 16
+np = 10
 iz0 = 0
 a0 = ''
 nz = len(mprun.zs)
