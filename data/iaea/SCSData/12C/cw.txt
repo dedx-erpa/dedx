@@ -1,0 +1,4 @@
+;Ant91,keine Umrechnung,stopping power in (MeV/(mg/cm**2)),Fehler:12% 
+;geschätzt, von CZ2.2 und CZ2.3.
+3.500  1.86084E+0
+4.083  1.70326E+0

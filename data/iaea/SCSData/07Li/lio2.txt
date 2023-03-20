@@ -1,0 +1,4 @@
+ENERGY	scs	label	ref
+MeV/amu			
+0.02395	30.837	A	An78
+0.02747	32.433	A	

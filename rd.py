@@ -330,10 +330,10 @@ def cmp_dedx(zt, xsc='e', dpass=1, atima=1, pstar=1):
     for fd in fds:
         try:
             if zt == 40:
-                r = loadtxt('/home/mfgu/dd/dedx_notes/iaea/'+fd,
+                r = loadtxt('data/iaea/'+fd,
                             unpack=1,usecols=(1,2),dtype=str)
             else:
-                r = loadtxt('/home/mfgu/dd/dedx_notes/iaea/'+fd,
+                r = loadtxt('data/iaea/'+fd,
                             unpack=1,usecols=(0,1),dtype=str)
             x = array([tofloat(r[0][i]) for i in range(len(r[0]))])
             y = array([tofloat(r[1][i]) for i in range(len(r[1]))])

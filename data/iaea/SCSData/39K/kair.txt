@@ -1,0 +1,9 @@
+Conversion of (eV / (1E15at / cm ** 2)) into (MeV / (mg / cm ** 2)): with factor
+; 0.60221 / 14.7998059629 multiplied
+5.1282E-3	1.5980E0	A	Fa68	error:8%
+7.6923E-3	2.1053E0	A
+1.0256E-2	2.5602E0	A
+1.2821E-2	2.9797E0	A
+1.5385E-2	3.3730E0	A
+1.7949E-2	3.7458E0	A
+2.0513E-2	4.1018E0	A

@@ -1,0 +1,38 @@
+24.14	0.97	A	Ga87	H.Gauvin et al,  Nucl.Instrum. Methods Phys.Res. B28,191 (1987)
+26.85	0.89	A	--	--
+45.38	0.594	B	Ga87	H.Gauvin et al,  Nucl.Instrum. Methods Phys.Res. B28,191 (1987)
+46.78	0.58	B	--	--
+91.1	0.36	C	Ga87	H.Gauvin et al,  Nucl.Instrum. Methods Phys.Res. B28,191 (1987)
+0.3456	6.72	D	LuX00	Xiting Lu et al, Nucl.Instrum.Methods Phys.Res. B168,287 (2000)
+0.3225	6.63	D	--	--
+0.299	6.54	D	--	--
+0.2625	6.31	D	--	--
+0.25	6.27	D	--	--
+0.23125	5.97	D	--	--
+0.21375	5.83	D	--	--
+0.1956	5.65	D	--	--
+0.1781	5.45	D	--	--
+0.16625	5.4	D	--	--
+0.15375	5.24	D	--	--
+0.14125	5.05	D	--	--
+0.1281	4.85	D	--	--
+0.11625	4.62	D	--	--
+0.10375	4.3	D	--	--
+0.09187	4.06	D	--	--
+0.08	3.81	D	--	--
+0.06875	3.51	D	--	--
+0.0575	3.19	D	--	--
+0.0506	2.95	D	--	--
+0.04375	2.69	D	--	--
+0.03687	2.4	D	--	--
+9.41	1.9	E	Hak02	A.Hakim,A.Fahli,M.Toulemonde,D.Leliévre,  Nucl.Instr.Methods Phys.Res. B187, 164 (2002)
+9.38	2.21	E	--	--
+9.36	2.01	E	--	--
+0.261	6.389	F	Msi15	M. Msimanga, C.B. Mtshali, C.A. Pineda-Vargas, Nucl. Instrum. Methods B 349, 1-5 (2015)
+0.326	6.855	F		
+0.379	7.194	F		
+0.432	7.194	F		
+0.481	7.484	F		
+0.533	7.345	F		
+0.596	7.597	F		
+0.709	6.993	F		
