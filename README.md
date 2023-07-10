@@ -44,7 +44,8 @@ Instructions for running dedx.py:
 --od= output directory  
 --emin= minimum projectile energy in MeV, default 1e-3  
 --emax= maximum projectile energy in MeV, default 100.0  
---mep= number of projectile energy points, default 100  
+--mep= number of projectile energy points, default 100
+--mout= if 1, also ouput radii-dependent contribution to dedx 
 --frho= the file path for the density distribution function to be used in  
         dedx.f. normally, the density is to be computed with average atom  
 	model. so no frho needs to be given. but if a density file already  

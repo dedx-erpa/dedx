@@ -62,3 +62,8 @@ def pdata(r, m):
         ylabel(r'(n0/n)dE/dx (Mev/$\mu$m)')
         savefig('dedx_ne.png')
 
+if __name__ == '__main__':
+    r = getdata()
+    for m in [1,2,3]:
+        pdata(r, m)
+        
