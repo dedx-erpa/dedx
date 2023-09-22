@@ -758,6 +758,19 @@ def palt(ide=0, nde=0, md=0):
     legend()
     
     savefig('tmp/alt%d_range.pdf'%(ide))
+
+def all_figs():
+    d,r = rcdedx('data/Al')
+    for i in [0,5,9]:
+        plot_rcdedx(d, r, i)
+        savefig('rc%02d.pdf'%i)
+    pbd()
+    pbt(0)
+    pbt(1)
+    pct()
+    paut()
+    pnit()
+    palt()
     
 def pfit():
     clf()
