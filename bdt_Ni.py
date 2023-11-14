@@ -4,7 +4,7 @@ from multiprocessing import Pool
 
 nproc = 16
 ds = [0.0891, 0.891, 8.91]
-ts = 10**linspace(-1,4.,35)
+ts = [10**(-1.0+i*5.0/34) for i in range(35)]
 nd = len(ds)
 nt = len(ts)
 
