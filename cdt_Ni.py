@@ -17,6 +17,7 @@ def run1dt(ij):
     print(c)
     os.system(c)
 
-p = Pool(processes=nproc)
-p.map(run1dt, range(nd*nt))
+if __name__ == '__main__':
+    p = Pool(processes=nproc)
+    p.map(run1dt, range(nd*nt))
         
