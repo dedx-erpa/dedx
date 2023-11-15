@@ -566,7 +566,7 @@ def pct(ide=0):
     plot(r1[0], r1[1]*a, label='PSTAR')
     xlim(0, 1.0)
     ylim(0, 1.5)
-    d = loadtxt('tmp/malko_fig.txt', unpack=1)
+    d = loadtxt('malko_fig.txt', unpack=1)
     plot(d[0][::2]/1e3, d[1][::2], marker='o', color='k', label='DFT', linestyle='none')
     errorbar(d[0][::2]/1e3, d[1][::2], yerr=(d[1][1::2]-d[1][::2]), capsize=3, marker='o', color='k', linestyle='none')
     xlabel('Energy (MeV)')                   
