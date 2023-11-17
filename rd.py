@@ -270,7 +270,7 @@ def plot_eloss(a, dx, ds=['dt0', 'dt1', 'dt2'],
     savefig('eloss%d_%s.png'%(mp,a))
     savefig('eloss%d_%s.pdf'%(mp,a))
     
-def cmp_dedx(zt, xsc='e', dpass=1, atima=1, pstar=1):
+def cmp_dedx(zt, xsc='e', dpass=1, atima=1, pstar=1, rpa=1, orpa=1):
     clf()    
     plt.rcParams.update({'font.size':15})
     plt.subplots_adjust(bottom=0.15,top=0.9,left=0.15,right=0.95)
@@ -302,6 +302,7 @@ def cmp_dedx(zt, xsc='e', dpass=1, atima=1, pstar=1):
             plot(x, r[1], label='DPASS')
         else:
             semilogx(x, r[1], label='DPASS')
+        
     if (xsc == 'e'):
         xlabel('Energy (MeV)')
         xlim(1e-3,1e2)
@@ -354,9 +355,20 @@ def cmp_dedx(zt, xsc='e', dpass=1, atima=1, pstar=1):
     x = y[0]
     if (xsc == 'v'):
         x = e2v(x)
-        plot(x, y[1], label=lab)
+        plot(x, y[1], linewidth=2, label=lab)
     else:
-        semilogx(x, y[1], label=lab)
+        semilogx(x, y[1], linewidth=2, label=lab)
+    if (os.path.exists(d+'0/dedx.dat') and rpa==1):
+        y = rdedx(d+'0')
+        x = y[0]
+        if (xsc == 'v'):
+            x = e2v(x)
+            plot(x, y[1], linestyle='--', linewidth=3, label='RPA')
+        else:
+            semilogx(x, y[1], linestyle='--', linewidth=3, label='RPA')
+    if (os.path.exists(d+'/odedx.dat') and orpa==1):
+        y = loadtxt(d+'/odedx.dat',unpack=1)
+        plot(y[0]/1e3, y[1], linestyle='dashdot', linewidth=3, label='Wang et al')
         
     ylabel(r'dE/dx ($10^{-15}$ eV cm$^2$/atom)')
     title('Target=%s'%a)    
