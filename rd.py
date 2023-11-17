@@ -394,7 +394,7 @@ def gen_plots(zs = dts.ss, mrc=0):
     for z in zs:
         print(z)
         prange(z)
-        cmp_dedx(z, atima=0, dpass=0, pstar=0)
+        cmp_dedx(z, atima=0, dpass=0)
         if type(z) == type(0):
             od = 'data/%s'%(fac.ATOMICSYMBOL[z])
         else:
@@ -415,7 +415,7 @@ def pden0(z):
     clf()
     plot(d[0], d[1])
     if (z == 79):
-        r = loadtxt('output/z79s/au_rho.txt', unpack=1)
+        r = loadtxt('../dedx.old/output/z79s/au_rho.txt', unpack=1)
         plot(r[0], r[1], marker='.')
     xlabel('radius (a.u.)')
     ylabel(r'$4\pi r^2\rho(r)$ (a.u.)')
