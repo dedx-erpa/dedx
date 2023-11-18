@@ -3039,12 +3039,16 @@ c
 c for  HP 730
 c
 
-      DATA RMACH(1) / Z'00800000' /
-      DATA RMACH(2) / Z'7F7FFFFF' /
-      DATA RMACH(3) / Z'33800000' /
-      DATA RMACH(4) / Z'34000000' /
-      DATA RMACH(5) / Z'3E9A209B' /
- 
+c      DATA RMACH(1) / Z'00800000' /
+c      DATA RMACH(2) / Z'7F7FFFFF' /
+c      DATA RMACH(3) / Z'33800000' /
+c      DATA RMACH(4) / Z'34000000' /
+c      DATA RMACH(5) / Z'3E9A209B' /
+      DATA RMACH(1) /1.17549435E-38/
+      DATA RMACH(2) /3.40282347E+38/
+      DATA RMACH(3) /5.96046448E-08/
+      DATA RMACH(4) /1.19209290E-07/
+      DATA RMACH(5) /3.01030010E-01/
 
       r1mach = rmach(i)
 
