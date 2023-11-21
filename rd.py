@@ -366,10 +366,17 @@ def cmp_dedx(zt, xsc='e', dpass=1, atima=1, pstar=1, rpa=1, orpa=1):
             plot(x, y[1], linestyle='--', linewidth=3, label='RPA')
         else:
             semilogx(x, y[1], linestyle='--', linewidth=3, label='RPA')
+    #if (os.path.exists(d+'0/dedx.ppd')):
+    #    y = loadtxt(d+'0/dedx.ppd', unpack=1)
+    #    y[1] *= 1e15
+    #    plot(y[0], y[1], linestyle='dashdot', linewidth=3, label='RPA+QEOS')
     if (os.path.exists(d+'/odedx.dat') and orpa==1):
         y = loadtxt(d+'/odedx.dat',unpack=1)
-        plot(y[0]/1e3, y[1], linestyle='dashdot', linewidth=3, label='Wang et al')
-        
+        x = y[0]
+        if (max(x) > 1000):
+            x /= 1e3
+        plot(x, y[1], linestyle='dashdot', linewidth=3, label='Wang et al')
+
     ylabel(r'dE/dx ($10^{-15}$ eV cm$^2$/atom)')
     title('Target=%s'%a)    
     legend()
