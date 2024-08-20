@@ -1,0 +1,19 @@
+&dedxinp
+
+  zzp = 1
+qmass = 1.008e+00
+  ztg = 13
+amass = 2.698e+01
+  mep = 100
+  emin = 1.000e-03
+  emax = 1.000e+02
+  mloss = 0
+  mout = 0
+  dinp = 2.702e+00
+  tinp = 2.500e-02
+  epa = -1.000e+11
+  epb = -1.000e+11
+  epc = -1.000e+11
+  epd = -1.000e+11
+  epe = -1.000e+11
+&end
