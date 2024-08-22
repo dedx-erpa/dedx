@@ -190,14 +190,19 @@ def prange(zs=[6,13,47,79]):
         savefig('range.pdf')
     
 def rpstar(od):
-    f = '%s/rho.functions'%od
-    d = loadtxt(f, unpack=1, max_rows=1)
-    zt = int(d[0])
-    
+    h = rdedx(od, header='')
+    mmw = 0.0
+    if h['nzt'] == 1:
+        mmw = fac.ATOMICMASS[int(h['zt'])]
+    else:
+        for i in range(h['nzt']):
+            mmw = mmw + h['wt'][i]*fac.ATOMICMASS[int(h['zt'][i])]
+        mmw = mmw/sum(h['wt'])
+        
     f = '%s/pstar.txt'%od
 
     r = loadtxt(f, unpack=1, skiprows=8)
-    r[[1,2,3]] *= 1e6/(1./(fac.ATOMICMASS[zt]*1.67e-24))*1e15
+    r[[1,2,3]] *= 1e6/(1./(mmw*1.67e-24))*1e15
     return r
 
 def e2v(e):
