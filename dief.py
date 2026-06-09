@@ -334,8 +334,8 @@ def gpv(kf, te, ge, igf=None, maxiter=100, gktol=0.05, sta=0.6,
                     rkm = (iym[j1]-iym[j0])/(w[j1]-w[j0])
                     iyp[j0:j1] = iyp[j0] + (w[j0:j1]-w[j0])*rkp
                     iym[j0:j1] = iym[j0] + (w[j0:j1]-w[j0])*rkm
-                    ep0 = integrate.simps(iyp[j0:j1], dx=dw)
-                    em0 = integrate.simps(iym[j0:j1], dx=dw)
+                    ep0 = integrate.simpson(iyp[j0:j1], dx=dw)
+                    em0 = integrate.simpson(iym[j0:j1], dx=dw)
                     dws1 = w[j1]-w0
                     dws0 = w0-w[j0]
                     if (dw1 < 1e10*dws1):
@@ -350,15 +350,15 @@ def gpv(kf, te, ge, igf=None, maxiter=100, gktol=0.05, sta=0.6,
                     ewt = exp(-w0/ta)
                     ep1 = di/(1-ewt)/denom
                     em1 = di*ewt/(1-ewt)/denom
-            sk[i] = integrate.simps(iyp, dx=dw)-ep0+ep1
-            sk[i] += integrate.simps(iym, dx=dw)-em0+em1
+            sk[i] = integrate.simpson(iyp, dx=dw)-ep0+ep1
+            sk[i] += integrate.simpson(iym, dx=dw)-em0+em1
         sk /= sk[-1]        
         for i in range(nz):
             iy = -(ks3*(sk-1.))/(4*pi*pi*de)
             ya = (ks2-ks2[i])**2/(4*ks*ks3[i])
             yb = log(abs(ks+ks[i])/(1e-31+abs(ks-ks[i])))            
             iy *= (5/6.-ks2/(2*ks2[i])+ya*yb)
-            gk[i] = integrate.simps(iy, dx=aks[1]-aks[0])
+            gk[i] = integrate.simpson(iy, dx=aks[1]-aks[0])
         for j in range(nw):
             b = lfc((ra[0,:,j],ra[1,:,j]), (gk,za))
             rc[0,:,j] = b[0]
@@ -577,7 +577,7 @@ def csp(v, zp, km, km1, dbx=1.25, nbmin=5, nbmax=50, tol=0.01):
             break
     bs2 = bs*bs
     yb = ys-ym
-    y = integrate.simps(yb*bs2, dx=dx)*2*pi
+    y = integrate.simpson(yb*bs2, dx=dx)*2*pi
     return y,bs,ys,yb
 
 def dedxkm(v,kf,te,rs,zp=1.0,sc=1.0,se=1.0,si=0.0):
@@ -619,7 +619,7 @@ def cspintmu(u, v, fi, mu, vmin):
         vr[w] = vmin
     sig = exp(fi(log(vr)))
     im = vr*(u*mu - v)*sig
-    return integrate.simps(im, dx=mu[1]-mu[0])
+    return integrate.simpson(im, dx=mu[1]-mu[0])
     
 def dedxbc(v,vi,y,ga,vt,te,ge,ef,ds,
            nu=101,umax=25.0,umin=0.01,nmu=21):
@@ -641,7 +641,7 @@ def dedxbc(v,vi,y,ga,vt,te,ge,ef,ds,
     for i in range(nv):        
         im = (array([cspintmu(t, v[i], fi, mu, vmin) for t in u]))
         iy = im*xf
-        r[i] = -integrate.simps(iy, dx=u[1]-u[0])
+        r[i] = -integrate.simpson(iy, dx=u[1]-u[0])
     r /= 34.1893*ga**1.5*(te*ef)/ds
     if sc == 1:
         r = r[0]
@@ -743,7 +743,7 @@ def dedx1k(k,kmc,v,kf,wp,te,ge,igf,nw,igk=None,wi=0.0,zp=1.0):
                 j1 = min(i1+dj, nw-1)
                 rk = (ri[j1]-ri[j0])/(ws[j1]-ws[j0])
                 ri[j0:j1] = ri[j0] + (ws[j0:j1]-ws[j0])*rk
-                er0 = integrate.simps(ri[j0:j1], dx=dw)
+                er0 = integrate.simpson(ri[j0:j1], dx=dw)
                 dws1 = ws[j1]-w0
                 dws0 = w0-ws[j0]
                 if (dw1 < 1e10*dws1):
@@ -755,7 +755,7 @@ def dedx1k(k,kmc,v,kf,wp,te,ge,igf,nw,igk=None,wi=0.0,zp=1.0):
                 else:
                     dws0 /= dw1
                 er1 = w0/ak*(arctan(dws1)+arctan(dws0))
-        p.append(integrate.simps(ri, dx=dw) + er1-er0)
+        p.append(integrate.simpson(ri, dx=dw) + er1-er0)
     #return p,ws,ri,r,er0,er1,ak,ab,w0,dws0,dws1
     return p
 
@@ -800,8 +800,8 @@ def dedx(ep,kf,de,te,ge,igf,kmin=0.25,kmax=2.5,nk=200,
     ri = array([dedx1k(ks[i],kmc[i],v,kf,wp,te,ge,igf,nw,
                        igk=igk,wi=wi,zp=zp) for i in range(nk)])
     dk = log(ks[1]/ks[0])
-    r = integrate.simps(ri[:,0], dx=dk)
-    rc = integrate.simps(ri[:,1], dx=dk)
+    r = integrate.simpson(ri[:,0], dx=dk)
+    rc = integrate.simpson(ri[:,1], dx=dk)
     a = (2/pi)/wp**2
     r *= a
     rc *= a
