@@ -12,10 +12,12 @@ c ******************************************************************** c
 
       program devsdx
       implicit real*8 (a-h,o-z)
+      real*8 kgap
       parameter (nrx=850, npx=1500, nex=100, nre=10)
       
       character string*80, odir*80, floss*80, floss0*80
-      
+      character fgap(8)*80
+
       dimension r(nrx), dr(nrx),   rho(nrx), rhol(nrx), sum(nrx)
       dimension ee(npx), elog(npx), dedx(npx), dedxt(50,50,200)
       dimension rhof(nrx),rho0(nrx),rhoe(nrx),vzt(nrx)
@@ -25,6 +27,9 @@ c ******************************************************************** c
 
       common /lhtab/eione(50),epk(30),rl(30),cl(50,30),cl0(50,30),
      +     evf2(30),eve2(30),neee,nrho,xte,xte0,xepa,xepb,xepc,xepd,xepe
+c     gap-correction (Levine-Louie) loss-table family for icb=3:
+c     clg(:,:,ig) holds the loss table at gap frequency wg(ig) [Hartree].
+      common /gaptab/clg(50,30,8),wg(8),ngap
       common / hlbdy / elow, ehig, epeak
       common /rrang/range(50,50,200)
 
@@ -33,9 +38,9 @@ c ******************************************************************** c
       data xepc /-1.5/
       data xepd /1.1/
       data xepe /0.25/
-      
+
       namelist /dedxinp/zzp, qmass, ztg, amass, mep, emin, emax,
-     +     mloss, mout, dinp, tinp, epa,epb,epc,epd,epe
+     +     mloss, mout, dinp, tinp, epa,epb,epc,epd,epe, egap, kgap
 
 c                                                                      c
 c ************************* START THE EXECUTION ********************** c
@@ -46,7 +51,13 @@ c                                                                      c
       epc = -1e11
       epd = -1e11
       epe = -1e11
-      
+c     gap-correction defaults (off):
+c       egap = fixed band gap in eV (Stage-1-style constant override)
+c       kgap = kappa, scales the local AA binding freq: E_g(r)=kgap*omega_b(r)
+      egap = 0.0
+      kgap = 0.0
+      ngap = 0
+
       Pi = 3.1415926
 c     proton mass in g
       pmass = 1.672623100e-24
@@ -77,6 +88,16 @@ c     :     /5x,'*  parameters through namelist file (dedx.inp)      *'/)
          floss0(1:len2) = floss(1:len2)
          len0 = len2
       endif
+c     optional gap-table family (icb=3): a count line followed by
+c     'wi filename' pairs (wi = gap frequency in Hartree). Absent in
+c     legacy 3-line odir.inp files -> ngap stays 0 (no gap).
+      read(5,*,iostat=igperr) ngap
+      if (igperr .ne. 0) ngap = 0
+      if (ngap .gt. 8) ngap = 8
+      do igr = 1, ngap
+         read(5,*) wg(igr), fgap(igr)
+         fgap(igr) = trim(adjustl(fgap(igr)))
+      enddo
 c      write(*,*) odir
       open(unit=1, file=odir(1:len1)//'/dedx.inp', status='old')
       open(unit=2, file=odir(1:len1)//'/rho.functions', status='old')     
@@ -229,7 +250,9 @@ c ----------------------------------------
          rewind (12)
          icb = 1
          if (mloss .ge. 100) then
-            if (mloss .ge. 200) then
+            if (mloss .ge. 300) then
+               icb = 3
+            else if (mloss .ge. 200) then
                icb = 2
             else
                icb = 0
@@ -237,7 +260,21 @@ c ----------------------------------------
             mloss = mod(mloss, 100)
          endif
          mloss1 = mod(mloss, 10)
-         if (mloss1 .gt. 0) then
+         if (icb .eq. 3) then
+c     gap mode: load the whole gap-table family into clg(:,:,ig).
+c     epk/evf2/eve2/etab/rl/neee/nrho are gap-independent (same density
+c     grid + rhoj), so the last rloss leaves them correctly set.
+            do igr = 1, ngap
+               open(unit=3, file=fgap(igr), status='old')
+               call rloss(mloss)
+               close(3)
+               do i = 1, neee
+                  do j = 1, nrho
+                     clg(i,j,igr) = cl(i,j)
+                  enddo
+               enddo
+            enddo
+         else if (mloss1 .gt. 0) then
             xte0 = -1d31
             if (floss0(1:len0) .ne. floss(1:len2)) then
                open(unit=3, file=floss0(1:len0), status='old')
@@ -377,7 +414,19 @@ c     ---------------------------
                      qe = 0d0
                   endif
                   qf = 6.748333e24*rhof(k)/fpr
-                  xcl = vlhfit(eion, q, qe, qf, ttt, zeff, mloss)
+                  if (icb .eq. 3) then
+c     Levine-Louie gap: local threshold E_g(r) [Hartree].
+c     omega_b(r) = c10/r^2 = rhoe(k)/r(k)^2 (rhoe column IS c10).
+c     egap>0 overrides with a fixed gap in eV (Stage-1-style).
+                     if (egap .gt. 0) then
+                        eg = egap/27.2114d0
+                     else
+                        eg = kgap * rhoe(k)/(r(k)*r(k))
+                     endif
+                     xcl = vlhfitg(eion, q, eg, qf, ttt, zeff, mloss)
+                  else
+                     xcl = vlhfit(eion, q, qe, qf, ttt, zeff, mloss)
+                  endif
                   if (icb .eq. 2 .and. vzt(k) .gt. 0) then
                      call lindt(eion, q, ttt, xcl0, epk0)
                      if (xcl0 .gt. 0) then
@@ -745,9 +794,62 @@ c         vlhfit = v1 + (v2-v1)/(e2-e1)*(ex-e1)
       vlhfit = vlhfit + yb
       return
       end
-         
-         
-           
+
+
+c ******************************************************************** c
+c   setclg: copy gap-table slice ig (clg) into the active loss table
+c   (cl/vlhtab in /lhtab/) so vlhfit evaluates that gapped table.
+c
+      subroutine setclg(ig)
+      implicit real*8 (a-h,o-z)
+      common /lhtab/eione(50),epk(30),rl(30),cl(50,30),cl0(50,30),
+     +     evf2(30),eve2(30),neee,nrho,xte,xte0,xepa,xepb,xepc,xepd,xepe
+      common /gaptab/clg(50,30,8),wg(8),ngap
+      do i = 1, neee
+         do j = 1, nrho
+            cl(i,j) = clg(i,j,ig)
+         enddo
+      enddo
+      return
+      end
+
+c ******************************************************************** c
+c   vlhfitg: gapped loss. Interpolates vlhfit between the two gap-table
+c   slices bracketing the local gap frequency eg [Hartree]. The rhoe
+c   density bump is disabled in gap mode (re=0 passed to vlhfit).
+c
+      function vlhfitg(e0,r0,eg,rf,te,ze,md)
+      implicit real*8 (a-h,o-z)
+      common /gaptab/clg(50,30,8),wg(8),ngap
+      if (ngap .le. 1) then
+         call setclg(1)
+         vlhfitg = vlhfit(e0,r0,0d0,rf,te,ze,md)
+         return
+      endif
+      if (eg .le. wg(1)) then
+         call setclg(1)
+         vlhfitg = vlhfit(e0,r0,0d0,rf,te,ze,md)
+         return
+      endif
+      if (eg .ge. wg(ngap)) then
+         call setclg(ngap)
+         vlhfitg = vlhfit(e0,r0,0d0,rf,te,ze,md)
+         return
+      endif
+      do ig = 1, ngap-1
+         if (eg.ge.wg(ig) .and. eg.le.wg(ig+1)) then
+            f = (eg-wg(ig))/(wg(ig+1)-wg(ig))
+            call setclg(ig)
+            x0 = vlhfit(e0,r0,0d0,rf,te,ze,md)
+            call setclg(ig+1)
+            x1 = vlhfit(e0,r0,0d0,rf,te,ze,md)
+            vlhfitg = x0*(1d0-f) + x1*f
+            return
+         endif
+      enddo
+      vlhfitg = 0d0
+      return
+      end
 
 c ******************************************************************** c
 c
