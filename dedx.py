@@ -133,9 +133,18 @@ if __name__ == '__main__':
                  default=0.0, help='fixed band gap in eV (icb=3, mloss>=300)')
     p.add_option('--kgap', dest='kgap', type='float',
                  default=0.0, help='kappa: E_g(r)=kgap*omega_b(r) (icb=3)')
+    p.add_option('--fgap', dest='fgap', type='string', default='',
+                 help='override gap-table family: "wi:file,wi:file,..." (wi in Ha)')
 
     opts,args = p.parse_args()
-    opts.fgap = None
+    if opts.fgap:
+        fam = []
+        for tok in opts.fgap.split(','):
+            wi, fn = tok.split(':')
+            fam.append((float(wi), fn))
+        opts.fgap = fam
+    else:
+        opts.fgap = None
 
     if not os.path.exists(opts.od):
         os.system('mkdir -p %s'%opts.od)

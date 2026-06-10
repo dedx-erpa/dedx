@@ -4,3 +4,10 @@ __pycache__/
 .ipynb_checkpoints/
 tmp/
 dedx
+
+# gap-correction scratch (reproducible run dirs / sweeps / WDM tables)
+data/sweep/
+data/wdm/
+data/*_k[0-9]*/
+dedx_g
+tw[0-9]*_g[0-9]*.dat
