@@ -125,9 +125,14 @@ Enable it by adding options to dedx.py:
         electrons only and fall below NIST (Faussurier Fig. 1). The 'total'  
         column uses gk if present.  
 --ti=   ion temperature in eV (default = Te). The finite-Ti Maxwellian average  
-        (Eq. 6) makes the nuclear stopping negative below a threshold E* in hot  
-        plasma (the projectile gains energy from the ion bath). Set --ti=0 for  
-        the Ti=0 form (Eq. 10).  
+        (Eq. 6) captures the thermal motion of the target ions. Below a threshold  
+        E* the projectile is slower than the thermal ions and the net ion-ion  
+        energy exchange becomes a GAIN (the projectile is heated by the bath, i.e.  
+        it has thermalized) -- a stopping power is an energy-loss rate, so the  
+        table is floored at 0 there (total = electronic). That signed energy-  
+        exchange is real physics but a different quantity; it is available from  
+        nuclear.eps_n_Maxwell and is used by alpha_dt_verify for the  
+        thermalization point. Set --ti=0 for the Ti=0 form (Eq. 10, always >= 0).  
 --gkmuffin= GK target density beyond the Wigner-Seitz cell: 1 = muffin-tin  
         interstitial free-electron sea (consistent with the eRPA electronic  
         treatment; default), 0 = isolated neutral atom. The two differ by <0.5%  

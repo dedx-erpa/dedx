@@ -389,6 +389,14 @@ def write_nuclear(od, zp, te_eV, ti_eV, potlist, species, fout='dedx_nuc.dat',
         wtot += sp['w']
     for p in potlist:
         cols[p] /= wtot
+        # A stopping power is an energy-LOSS rate, so floor at 0.  The finite-Ti
+        # Maxwellian average (Eq. 6) goes negative below the energy-gain threshold
+        # E* (the projectile is slower than the thermal ions and is heated by the
+        # bath -- it has thermalized, so there is no net stopping there).  That
+        # signed energy-exchange is real physics but a different quantity; it is
+        # kept in eps_n_Maxwell (used by alpha_dt_verify for the thermalization
+        # zero-crossing) and only floored here for the stopping-power table.
+        cols[p] = np.maximum(cols[p], 0.0)
 
     # choose the potential used for the total/range column
     chosen = next((p for p in _POT_ORDER if p in potlist), potlist[0])
@@ -465,12 +473,15 @@ def plot_nuclear(od, fin='dedx_nuc.dat', fout='dedx_nuc.pdf', show_range=True):
     fig, axes = plt.subplots(1, ncol, figsize=(6.2 * ncol, 4.6))
     ax = axes[0] if show_range else axes
 
+    # nuclear columns are floored at 0 (stopping = energy loss); mask the zeros
+    # so the curves drop out cleanly on the log axis rather than implying a value.
+    pos = lambda y: np.where(y > 0, y, np.nan)
     ax.loglog(E, dedx_e, 'C0-', lw=2, label='electronic (eRPA)')
     styles = ['C3-', 'C2--', 'C1-.', 'C4:']
     for i, p in enumerate(potlist):
-        ax.loglog(E, np.abs(nuc[p]), styles[i % len(styles)], lw=1.7,
+        ax.loglog(E, pos(nuc[p]), styles[i % len(styles)], lw=1.7,
                   label='nuclear/ionic [%s]' % p)
-    ax.loglog(E, np.abs(dedx_tot), 'k-', lw=2.4, alpha=.8,
+    ax.loglog(E, pos(dedx_tot), 'k-', lw=2.4, alpha=.8,
               label='total (e + %s)' % meta.get('total', 'nuc').split('+')[-1].strip())
     ax.set_xlabel('E / AMU (MeV)')
     ax.set_ylabel(r'dE/dx ($10^{-15}$ eV cm$^2$/atom)')

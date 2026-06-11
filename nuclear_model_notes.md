@@ -22,8 +22,14 @@ Per-target-atom nuclear stopping cross section:
   `γ = 4 M₀Mₜ/(M₀+Mₜ)²`, `E` = projectile lab kinetic energy.
 - **Finite Ti** (Eq. 6): average the same integrand over a 3-D Maxwellian
   target-ion velocity `w`, reduced by azimuthal symmetry to a 2-D quadrature
-  over `(w∥, w⊥)`. Below a threshold `E*` in hot plasma `ε_n` goes **negative**
-  (the projectile gains energy from the ion bath) — Eqs. (11)–(12).
+  over `(w∥, w⊥)`. Below a threshold `E*` in hot plasma the net ion-ion energy
+  exchange `ε_n` becomes a **gain** (the projectile is slower than the thermal
+  ions and is heated toward equilibrium — it has thermalized) — Eqs. (11)–(12),
+  Faussurier Fig. 4. This is the net energy-*exchange* rate, not a stopping power:
+  a stopping power is an energy-*loss* rate (≥ 0), so `write_nuclear` floors the
+  table at 0 below `E*` (total = electronic there). The signed exchange is kept in
+  `eps_n_Maxwell` and used by `alpha_dt_verify` for the thermalization zero-
+  crossing.
 - **Deflection** (Eq. 7): `θ(p) = π − 2(p/R_min)∫₀¹ 2t dt/√g(1−t²)`,
   `g(s)=1 − p²s²/R_min² − U(R_min/s)/E_c`, `s=R_min/R`. The `s=1−t²` substitution
   removes the turning-point √ singularity. `R_min` (Eq. 9) is the largest root of
