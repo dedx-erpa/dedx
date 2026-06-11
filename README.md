@@ -132,6 +132,9 @@ Enable it by adding options to dedx.py:
         interstitial free-electron sea (consistent with the eRPA electronic  
         treatment; default), 0 = isolated neutral atom. The two differ by <0.5%  
         in cold matter and up to ~5% in hot dense matter (see notes).  
+--plot= 1 to also save dedx_nuc.pdf: a log-log plot of the electronic,  
+        nuclear/ionic (one curve per potential), and total stopping power, plus  
+        the total range, with the run conditions in the title.  
 
 This writes dedx_nuc.dat in the output directory, with columns  
       Energy/AMU (MeV)  
@@ -139,17 +142,29 @@ This writes dedx_nuc.dat in the output directory, with columns
       dEdx_n[<pot>]  (one column per requested potential)  
       dEdx_tot (electronic + chosen potential)  
       Range(mg/cm2) of the total  
+and, with --plot=1, the figure dedx_nuc.pdf.  The same plot can be made from an  
+existing run with  python -c "import nuclear; nuclear.plot_nuclear('<od>')".  
+
+The combined (electronic + nuclear) model spans cold solids through warm/hot  
+dense matter and on to fusion plasmas: at low T the nuclear term is the classical  
+elastic ion-ion ("nuclear") stopping; at finite T it becomes the projectile-ion /  
+target-ion drag of the Fokker-Planck slowing-down (the same physics as the ion  
+term in Mehlhorn, J. Appl. Phys. 52, 6522, 1981).  
 
 Examples:  
-1. Proton in cold aluminum, nuclear stopping with all three potentials:  
-python dedx.py --zt=13 --d=2.7 --t=0.025 --aa=2 --nuc=1 --od=ColdAl  
+1. Proton in cold aluminum, nuclear stopping with all three potentials + plot:  
+python dedx.py --zt=13 --d=2.7 --t=0.025 --aa=2 --nuc=1 --npot=gk,ionsphere,yukawa --plot=1 --od=ColdAl  
 
 2. Proton in warm water, Gordon-Kim nuclear stopping only:  
 python dedx.py --fc=H2O --d=1.0 --t=10.0 --aa=2 --nuc=1 --npot=gk --od=WarmH2O  
 
-Validation/example driver (reproduces the paper's figures):  
-python nuc_test.py fig1     # cold Al, three potentials vs NIST/ZBL nuclear  
-python nuc_test.py sweep    # Te=1/10/100/1000 eV, nuclear growth + range cut  
+Validation / example drivers:  
+python nuc_test.py fig1        # cold Al, three potentials vs NIST/ZBL nuclear  
+python nuc_test.py sweep       # Te=1/10/100/1000 eV, nuclear growth + range cut  
+python nuc_fac_compare.py      # FAC implementation vs the paper (SCAALP), proton-Al  
+python nuc_gap_fig.py          # total = best-kappa electronic + GK nuclear vs PSTAR  
+python nuc_ion_verify.py       # finite-Ti ion stopping vs the Fokker-Planck drag  
+python alpha_dt_verify.py      # 3.5 MeV alpha in DT: e/ion crossover ~30 keV, range  
 
 Note: the analytic Yukawa potential overestimates the nuclear stopping at high  
 projectile energy (its long screened-attractive tail); nuclear stopping there  

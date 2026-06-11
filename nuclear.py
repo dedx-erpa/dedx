@@ -418,6 +418,82 @@ def write_nuclear(od, zp, te_eV, ti_eV, potlist, species, fout='dedx_nuc.dat',
 
 
 # ---------------------------------------------------------------------------
+# plotting: electronic / nuclear(ionic) / total from a dedx_nuc.dat
+# ---------------------------------------------------------------------------
+def plot_nuclear(od, fin='dedx_nuc.dat', fout='dedx_nuc.pdf', show_range=True):
+    """Plot electronic, nuclear/ionic, and total stopping (and the total range)
+    from od/dedx_nuc.dat.  Returns the saved figure path."""
+    import matplotlib
+    matplotlib.use('Agg')
+    import matplotlib.pyplot as plt
+
+    path = '%s/%s' % (od, fin)
+    meta, potlist = {}, []
+    with open(path) as f:
+        for line in f:
+            if not line.startswith('#'):
+                break
+            if 'npot' in line:
+                potlist = [s.strip() for s in line.split('=')[1].split(',') if s.strip()]
+            elif '=' in line:
+                k = line[1:].split('=')[0].strip()
+                try:
+                    meta[k] = float(line.split('=')[1])
+                except ValueError:
+                    meta[k] = line.split('=')[1].strip()
+
+    d = np.loadtxt(path, comments='#')
+    E = d[:, 0]
+    dedx_e = d[:, 1]
+    nuc = {p: d[:, 2 + i] for i, p in enumerate(potlist)}
+    dedx_tot = d[:, 2 + len(potlist)]
+    rng = d[:, 3 + len(potlist)]
+
+    # material label from the electronic dedx.dat header, if present
+    mat = ''
+    try:
+        import rd
+        h = rd.rdedx(od, header='')
+        zt = ','.join('%d' % int(round(z)) for z in np.atleast_1d(h['zt']))
+        mat = 'Zt=%s, ' % zt
+    except Exception:
+        pass
+    cond = '%srho-dep, Te=%g eV, Ti=%g eV, Zp=%g' % (
+        mat, meta.get('Te', 0), meta.get('Ti', 0), meta.get('zp', 1))
+
+    ncol = 2 if show_range else 1
+    fig, axes = plt.subplots(1, ncol, figsize=(6.2 * ncol, 4.6))
+    ax = axes[0] if show_range else axes
+
+    ax.loglog(E, dedx_e, 'C0-', lw=2, label='electronic (eRPA)')
+    styles = ['C3-', 'C2--', 'C1-.', 'C4:']
+    for i, p in enumerate(potlist):
+        ax.loglog(E, np.abs(nuc[p]), styles[i % len(styles)], lw=1.7,
+                  label='nuclear/ionic [%s]' % p)
+    ax.loglog(E, np.abs(dedx_tot), 'k-', lw=2.4, alpha=.8,
+              label='total (e + %s)' % meta.get('total', 'nuc').split('+')[-1].strip())
+    ax.set_xlabel('E / AMU (MeV)')
+    ax.set_ylabel(r'dE/dx ($10^{-15}$ eV cm$^2$/atom)')
+    ax.set_title('Stopping power')
+    ax.legend(fontsize=8); ax.grid(True, which='both', alpha=.3)
+
+    if show_range:
+        axr = axes[1]
+        axr.loglog(E, rng, 'k-', lw=2)
+        axr.set_xlabel('E / AMU (MeV)')
+        axr.set_ylabel('range (mg/cm$^2$)')
+        axr.set_title('Total range')
+        axr.grid(True, which='both', alpha=.3)
+
+    fig.suptitle(cond, fontsize=10)
+    fig.tight_layout(rect=[0, 0, 1, 0.95])
+    out = '%s/%s' % (od, fout)
+    fig.savefig(out)
+    plt.close(fig)
+    return out
+
+
+# ---------------------------------------------------------------------------
 # self-test: Rutherford analytic check of the scattering integrator
 # ---------------------------------------------------------------------------
 def _rutherford_check():

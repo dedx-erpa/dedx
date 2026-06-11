@@ -145,6 +145,8 @@ if __name__ == '__main__':
     p.add_option('--gkmuffin', dest='gkmuffin', type='int', default=1,
                  help='GK target density beyond the cell: 1=muffin-tin interstitial '
                       'sea (eRPA-consistent, default), 0=isolated neutral atom')
+    p.add_option('--plot', dest='plot', type='int', default=0,
+                 help='with --nuc, also save dedx_nuc.pdf (electronic/nuclear/total)')
 
     opts,args = p.parse_args()
     if opts.fgap:
@@ -326,3 +328,7 @@ if __name__ == '__main__':
                                        gk_muffin=bool(opts.gkmuffin))
             if opts.v > 0:
                 print('nuclear stopping written to %s'%fn)
+            if opts.plot:
+                pf = nuclear.plot_nuclear(opts.od)
+                if opts.v > 0:
+                    print('stopping plot written to %s'%pf)

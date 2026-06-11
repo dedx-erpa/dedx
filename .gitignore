@@ -15,3 +15,5 @@ tw[0-9]*_g[0-9]*.dat
 # nuclear-stopping scratch (reproducible: regenerate with nuc_test.py / nuc_*.py)
 dedx_nuc.dat
 data/*/dedx_nuc.dat
+dedx_nuc.pdf
+data/*/dedx_nuc.pdf
