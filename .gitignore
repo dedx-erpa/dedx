@@ -11,3 +11,7 @@ data/wdm/
 data/*_k[0-9]*/
 dedx_g
 tw[0-9]*_g[0-9]*.dat
+
+# nuclear-stopping scratch (reproducible: regenerate with nuc_test.py / nuc_*.py)
+dedx_nuc.dat
+data/*/dedx_nuc.dat

@@ -102,3 +102,55 @@ the data section has 3 columns,
       Energy/AMU (MeV)  
       dEdx(10^-15 eV/cm2/atom)  
       Range(mg/cm2)  
+
+Nuclear stopping power (cold matter -> WDM)  
+
+dedx.f / dedx.py compute the *electronic* stopping power. The companion module
+nuclear.py adds the *nuclear* (elastic ion-ion) stopping power using the
+classical two-body model of Faussurier, Blancard & Gauthier, Phys. Plasmas 20,
+012705 (2013). The two contributions are returned in the same units
+(10^-15 eV cm^2/atom) and add to give the total stopping power, consistent from
+cold solids through warm/hot dense matter. See nuclear_model_notes.md for the
+equations and validation.  
+
+Enable it by adding options to dedx.py:  
+--nuc=  1 to also compute nuclear stopping (default 0).  
+--npot= comma-separated pair potentials, subset of gk,ionsphere,yukawa  
+        (default gk). gk (full Gordon-Kim) is the recommended model: it builds  
+        the projectile-target interaction from the average-atom bound+free  
+        electron density with the full electron-gas energy (electrostatic +  
+        Thomas-Fermi kinetic + Dirac exchange + PW92 correlation, with the  
+        Faussurier/Stein volume-conservation scaling), and reproduces the cold  
+        NIST nuclear stopping. The analytic ionsphere/yukawa screen with free  
+        electrons only and fall below NIST (Faussurier Fig. 1). The 'total'  
+        column uses gk if present.  
+--ti=   ion temperature in eV (default = Te). The finite-Ti Maxwellian average  
+        (Eq. 6) makes the nuclear stopping negative below a threshold E* in hot  
+        plasma (the projectile gains energy from the ion bath). Set --ti=0 for  
+        the Ti=0 form (Eq. 10).  
+--gkmuffin= GK target density beyond the Wigner-Seitz cell: 1 = muffin-tin  
+        interstitial free-electron sea (consistent with the eRPA electronic  
+        treatment; default), 0 = isolated neutral atom. The two differ by <0.5%  
+        in cold matter and up to ~5% in hot dense matter (see notes).  
+
+This writes dedx_nuc.dat in the output directory, with columns  
+      Energy/AMU (MeV)  
+      dEdx_e   (electronic, 10^-15 eV cm^2/atom)  
+      dEdx_n[<pot>]  (one column per requested potential)  
+      dEdx_tot (electronic + chosen potential)  
+      Range(mg/cm2) of the total  
+
+Examples:  
+1. Proton in cold aluminum, nuclear stopping with all three potentials:  
+python dedx.py --zt=13 --d=2.7 --t=0.025 --aa=2 --nuc=1 --od=ColdAl  
+
+2. Proton in warm water, Gordon-Kim nuclear stopping only:  
+python dedx.py --fc=H2O --d=1.0 --t=10.0 --aa=2 --nuc=1 --npot=gk --od=WarmH2O  
+
+Validation/example driver (reproduces the paper's figures):  
+python nuc_test.py fig1     # cold Al, three potentials vs NIST/ZBL nuclear  
+python nuc_test.py sweep    # Te=1/10/100/1000 eV, nuclear growth + range cut  
+
+Note: the analytic Yukawa potential overestimates the nuclear stopping at high  
+projectile energy (its long screened-attractive tail); nuclear stopping there  
+is negligible vs electronic, and gk is the recommended potential.  

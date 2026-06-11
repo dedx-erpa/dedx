@@ -135,6 +135,16 @@ if __name__ == '__main__':
                  default=0.0, help='kappa: E_g(r)=kgap*omega_b(r) (icb=3)')
     p.add_option('--fgap', dest='fgap', type='string', default='',
                  help='override gap-table family: "wi:file,wi:file,..." (wi in Ha)')
+    p.add_option('--nuc', dest='nuc', type='int', default=0,
+                 help='also compute nuclear stopping (Faussurier model) -> dedx_nuc.dat')
+    p.add_option('--npot', dest='npot', type='string', default='gk',
+                 help='nuclear pair potential(s): subset of gk,ionsphere,yukawa '
+                      '(default gk = full Gordon-Kim, the recommended model)')
+    p.add_option('--ti', dest='ti', type='float', default=-1.0,
+                 help='ion temperature in eV for nuclear stopping (default: =Te)')
+    p.add_option('--gkmuffin', dest='gkmuffin', type='int', default=1,
+                 help='GK target density beyond the cell: 1=muffin-tin interstitial '
+                      'sea (eRPA-consistent, default), 0=isolated neutral atom')
 
     opts,args = p.parse_args()
     if opts.fgap:
@@ -298,3 +308,21 @@ if __name__ == '__main__':
         t1 = time.time()
         if opts.v > 0:
             print('done in %10.3E s'%(t1-t0))
+
+        if opts.nuc:
+            import nuclear
+            potlist = [s.strip() for s in opts.npot.split(',') if s.strip()]
+            ti = opts.ti if opts.ti >= 0.0 else opts.t
+            if len(zc) > 0:
+                species = [{'zt': zc[i], 'w': wc[i],
+                            'sod': '%s/%s'%(opts.od, fac.ATOMICSYMBOL[zc[i]])}
+                           for i in range(len(zc))]
+            else:
+                species = [{'zt': opts.zt, 'w': 1.0, 'sod': opts.od}]
+            if opts.v > 0:
+                print('computing nuclear stopping (%s) ...'%opts.npot)
+            fn = nuclear.write_nuclear(opts.od, opts.zp, opts.t, ti,
+                                       potlist, species,
+                                       gk_muffin=bool(opts.gkmuffin))
+            if opts.v > 0:
+                print('nuclear stopping written to %s'%fn)
