@@ -428,9 +428,16 @@ def write_nuclear(od, zp, te_eV, ti_eV, potlist, species, fout='dedx_nuc.dat',
 # ---------------------------------------------------------------------------
 # plotting: electronic / nuclear(ionic) / total from a dedx_nuc.dat
 # ---------------------------------------------------------------------------
-def plot_nuclear(od, fin='dedx_nuc.dat', fout='dedx_nuc.pdf', show_range=True):
+def plot_nuclear(od, fin='dedx_nuc.dat', fout='dedx_nuc.pdf', show_range=True,
+                 emin=1e-3, emax=None):
     """Plot electronic, nuclear/ionic, and total stopping (and the total range)
-    from od/dedx_nuc.dat.  Returns the saved figure path."""
+    from od/dedx_nuc.dat.  Returns the saved figure path.
+
+    emin, emax : x-axis (E/AMU, MeV) limits.  emin defaults to 1e-3 MeV/AMU
+    (~1 keV/AMU) since the model is normally used for high-energy ions and the
+    sub-keV region in warm/hot matter is below the plasma thermal energy (where
+    the projectile is thermalizing and the stopping-power picture breaks down).
+    Pass emin=None to show the full computed grid."""
     import matplotlib
     matplotlib.use('Agg')
     import matplotlib.pyplot as plt
@@ -469,6 +476,9 @@ def plot_nuclear(od, fin='dedx_nuc.dat', fout='dedx_nuc.pdf', show_range=True):
     cond = '%srho-dep, Te=%g eV, Ti=%g eV, Zp=%g' % (
         mat, meta.get('Te', 0), meta.get('Ti', 0), meta.get('zp', 1))
 
+    xlo = emin if emin is not None else E.min()
+    xhi = emax if emax is not None else E.max()
+
     ncol = 2 if show_range else 1
     fig, axes = plt.subplots(1, ncol, figsize=(6.2 * ncol, 4.6))
     ax = axes[0] if show_range else axes
@@ -486,6 +496,13 @@ def plot_nuclear(od, fin='dedx_nuc.dat', fout='dedx_nuc.pdf', show_range=True):
     ax.set_xlabel('E / AMU (MeV)')
     ax.set_ylabel(r'dE/dx ($10^{-15}$ eV cm$^2$/atom)')
     ax.set_title('Stopping power')
+    ax.set_xlim(xlo, xhi)
+    # y-range from the data actually shown
+    m = (E >= xlo) & (E <= xhi)
+    yv = np.concatenate([dedx_e[m], dedx_tot[m]] + [nuc[p][m] for p in potlist])
+    yv = yv[yv > 0]
+    if yv.size:
+        ax.set_ylim(yv.min() * 0.5, yv.max() * 2.0)
     ax.legend(fontsize=8); ax.grid(True, which='both', alpha=.3)
 
     if show_range:
@@ -494,6 +511,7 @@ def plot_nuclear(od, fin='dedx_nuc.dat', fout='dedx_nuc.pdf', show_range=True):
         axr.set_xlabel('E / AMU (MeV)')
         axr.set_ylabel('range (mg/cm$^2$)')
         axr.set_title('Total range')
+        axr.set_xlim(xlo, xhi)
         axr.grid(True, which='both', alpha=.3)
 
     fig.suptitle(cond, fontsize=10)

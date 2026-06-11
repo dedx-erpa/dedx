@@ -138,8 +138,10 @@ Enable it by adding options to dedx.py:
         treatment; default), 0 = isolated neutral atom. The two differ by <0.5%  
         in cold matter and up to ~5% in hot dense matter (see notes).  
 --plot= 1 to also save dedx_nuc.pdf: a log-log plot of the electronic,  
-        nuclear/ionic (one curve per potential), and total stopping power, plus  
-        the total range, with the run conditions in the title.  
+        nuclear/ionic (one curve per requested potential), and total stopping  
+        power, plus the total range, with the run conditions in the title. The  
+        x-axis defaults to E/AMU >= 1e-3 MeV (~1 keV/AMU); plot_nuclear(od,  
+        emin=, emax=) overrides the limits (emin=None shows the full grid).  
 
 This writes dedx_nuc.dat in the output directory, with columns  
       Energy/AMU (MeV)  
