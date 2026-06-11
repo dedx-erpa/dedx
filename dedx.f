@@ -600,8 +600,17 @@ c
       ex = e0
       rx = log10(max(1d-10,r0))
 c
+c .... low-velocity friction (LSS/Chandrasekhar) limit.
+c     Below the tabulated energy grid the RPA stopping number follows
+c     L ~ v^3, so dE/dx ~ (1/v^2)*L ~ v ~ sqrt(E).  Without this the table
+c     value is clamped to the grid-edge (E=etab(neee)), giving the spurious
+c     dE/dx ~ 1/E rise seen in warm/hot matter below ~1 keV/amu.  sclo=1 on
+c     and above the grid, so the validated high-energy behavior is unchanged.
+      sclo = 1d0
+      if (e0 .lt. etab(neee)) sclo = (e0/etab(neee))**1.5d0
+c
 c .... (1) looking up the energy index
-c      
+c
       if(ex.ge.etab(1)) then
          inde1 = 1
          inde2 = 1
@@ -753,7 +762,7 @@ c
 c .... if the point is right at one of the  nodes
 c
       if(inde1.eq.inde2 .and. indr1.eq.indr2) then
-         vlhfit = 10**vlhtab(inde1,indr1) + yb
+         vlhfit = 10**vlhtab(inde1,indr1)*sclo + yb
          return
       endif
 
@@ -765,8 +774,8 @@ c
          r2 = rtab(indr2)
          v1 = vlhtab(inde1,indr1)
          v2 = vlhtab(inde1,indr2)
-         vlhfit = v1 + (v2-v1)/(r2-r1) * (rx-r1)         
-         vlhfit = 10**vlhfit
+         vlhfit = v1 + (v2-v1)/(r2-r1) * (rx-r1)
+         vlhfit = 10**vlhfit*sclo
 c         vlhfit = cubint(rx, indr1, rtab, vlhtab(inde1,1:30), 30)
       else
 c         v1 = cubint(rx, indr1, rtab, vlhtab(inde1, 1:30), 30)
