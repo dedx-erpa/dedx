@@ -1,0 +1,11 @@
+# Python dependencies for dedx-erpa  ->  pip install -r requirements.txt
+numpy
+scipy>=1.14        # integrate.simpson (renamed from the deprecated simps)
+matplotlib         # plotting (plot_nuclear, the nuc_*/alpha_dt_* drivers)
+
+# NOT on PyPI -- install separately from source:
+#   pfac : the Python interface to FAC (Flexible Atomic Code), needed by dedx.py
+#          for the average-atom electron-density distributions.
+#          https://github.com/flexible-atomic-code/fac   (master branch required)
+#
+# Fortran: dedx.f is built with gfortran via `make` (see Makefile).

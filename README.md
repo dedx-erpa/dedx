@@ -13,11 +13,22 @@ Contents:
 4. t##.dat, a set of tables for proton in uniform electron gas stopping powers  
    calculated with dief.py. used by dedx.py and dedx.f to compute stopping  
    powers for arbitrary electron density distributions.  
-5. various utility and example scripts.
-6. data/, proton in cold targets for Z=1-92 and select compounds. data  
+5. nuclear.py, nuclear_gk.py, the *nuclear / ion* stopping power (elastic  
+   ion-ion at low T -> projectile-ion/target-ion Fokker-Planck drag at finite T;  
+   Faussurier 2013). Combined with the eRPA electronic stopping above, this gives  
+   a total stopping power from cold solids through warm/hot dense matter to fusion  
+   plasmas. See the "Nuclear stopping power" section below and nuclear_model_notes.md.  
+6. various utility and example scripts, plus validation drivers:  
+   nuc_test.py, nuc_fac_compare.py, nuc_gap_fig.py (electronic+nuclear vs PSTAR),  
+   nuc_ion_verify.py (ion stopping vs Fokker-Planck), alpha_dt_verify.py (alpha-DT).  
+7. data/, proton in cold targets for Z=1-92 and select compounds. data  
    for each material is in the sub-directory named after its chemical symbol.  
    dedx.dat contains the dedx and range. dedx.pdf is a plot of the dedx vs E,  
-   and range.pdf is a plot of range vs E.  
+   and range.pdf is a plot of range vs E. data/refs/ holds independent  
+   reference data used for validation.  
+
+Python dependencies: numpy, scipy>=1.14, matplotlib (see requirements.txt), plus  
+pfac (the FAC Python interface, installed from source -- see below).  
 
 Instructions for running dedx.py:  
 
@@ -176,3 +187,16 @@ python alpha_dt_verify.py      # 3.5 MeV alpha in DT: e/ion crossover ~30 keV, r
 Note: the analytic Yukawa potential overestimates the nuclear stopping at high  
 projectile energy (its long screened-attractive tail); nuclear stopping there  
 is negligible vs electronic, and gk is the recommended potential.  
+
+References and citation  
+
+The electronic stopping is the eRPA model of P. Wang, T. A. Mehlhorn and  
+J. J. MacFarlane, Phys. Plasmas 5, 2977 (1998). The cold-insulator band-gap  
+correction and the nuclear/ion stopping (Faussurier, Blancard & Gauthier,  
+Phys. Plasmas 20, 012705, 2013) are described in nuclear_model_notes.md and the  
+manuscript drafts under docs/. Please cite those works when using this package.  
+
+License  
+
+A license is pending (institutional review). Until a LICENSE file is added, all  
+rights are reserved; contact the authors before redistribution or reuse.    
