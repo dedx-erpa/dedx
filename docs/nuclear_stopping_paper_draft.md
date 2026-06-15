@@ -128,7 +128,59 @@ fractions crossing at **28.9–32.6 keV** for densities 0.213–100 g/cc, and an
 ~Tₑ^(−3/2) when the alpha becomes slow relative to the hot electrons, while the ion drag
 stays roughly flat (the alpha remains fast relative to the DT ions).
 
-## F. Figures
+## F. Comparison with recent plasma / WDM stopping measurements
+
+Beyond the cold (NIST/PSTAR/IAEA) and analytic (Fokker–Planck) references, the total
+model is compared to four recent, well-characterized WDM/plasma measurements (conditions
+and citations in `docs/recent_stopping_experiments.md`; drivers `exp_compare.py` and
+`exp_compare_icf.py`).
+
+**Frenje 2019 — ion stopping in DT plasma (Tₑ≈2 keV): the nuclear/ion channel.** Frenje et
+al. found that the electronic (Brown–Preston–Singleton) stopping underpredicts the measured
+ion stopping by ~20% at vᵢ≈0.3 v_th near the Bragg peak, and attributed the gap to
+nuclear-elastic scattering — precisely the projectile-ion/target-ion channel added here.
+For a proton in DT plasma at Tₑ=2 keV the model's nuclear/ion contribution is 6% of the
+total at high velocity but rises to **23% at vᵢ≈0.3 v_th**, the same magnitude and
+direction as the discrepancy Frenje attributed to nuclear-elastic scattering. The added
+channel thus accounts, quantitatively, for the missing stopping identified in that
+experiment. (Fig. exp_compare_icf, right.)
+
+`[NOTE]` This is the strongest experimental motivation for the nuclear/ion addition —
+consider leading the verification with it. The vᵢ/v_th↔energy mapping used here is
+approximate; digitized data points would make it a point-by-point fit.
+
+**Cayzac 2017 — N ions in carbon plasma (Tₑ≈150 eV).** At full ionization the model
+reproduces the measured plasma stopping enhancement: dE/dx(plasma)/dE/dx(solid) = 1.62 at
+0.586 MeV/u vs the measured enhancement of up to ~1.5. (Fig. exp_compare, right.)
+
+**Malko 2022 — proton in warm dense carbon (Tₑ≈7.5 eV).** The model reproduces the
+measured/DFT stopping magnitude across 0.2–0.65 MeV (e.g. 0.40 MeV: 0.44 vs 0.44; 0.51 MeV:
+0.38 vs 0.39 keV/(µg/cm²)). `[NOTE]` The measured ~13–26% reduction vs solid is small in the
+model at this temperature (carbon barely ionizes further, Z̄ 2.7→3.0) — as in classical and
+TD-DFT treatments; we note it rather than claim it. (Fig. exp_compare, left.)
+
+**Zylstra 2015 — proton in warm dense Be (Tₑ≈32 eV).** The model gives ~5% increased loss
+vs cold matter, the direction and order of the measured effect, consistent with Zylstra's
+conclusion that the average-atom LDA (this model's framework) reproduces the data.
+(Fig. exp_compare_icf, left.)
+
+**Community benchmark — charged-particle stopping workshops.** The model is run on the
+standardized cases of the two code-comparison workshops (Grabowski et al. 2020; Stanek et
+al. 2024): alpha-particle stopping vs velocity for H, C, Be, Al, Cu at the defined ρ, T.
+Stanek et al. note that average-atom models agree with the reference beyond the stopping
+peak. The model predictions (alpha electronic stopping, 10⁻¹⁵ eV cm²/atom) are:
+
+| Case | target, ρ, T | Z̄ | peak Se | vp at peak (a.u.) | Se at vp=2 a.u. |
+|---|---|---|---|---|---|
+| H1  | H, 1 g/cc, 2 eV     | 0.79 | 14.9 | 2.1 | 14.7 |
+| C1  | C, 10 g/cc, 2 eV    | 4.00 | 31.7 | 3.0 | 25.0 |
+| Be1 | Be, 1.84 g/cc, 4.4 eV | 1.97 | 45.3 | 1.7 | 44.1 |
+| Al1 | Al, 2.7 g/cc, 1 eV  | 2.97 | 87.1 | 1.5 | 79.9 |
+| Cu1 | Cu, 8.96 g/cc, 1 eV | 4.46 | 101.2 | 2.1 | 100.7 |
+
+(Fig. exp_bench; ready for overlay against the workshop consensus bands.)
+
+## G. Figures
 
 - **Fig. nuc_fig1_coldAl** (`nuc_fig1_coldAl.pdf`): proton in cold Al — ion-sphere, Yukawa,
   Gordon–Kim vs NIST/ZBL nuclear stopping.
@@ -142,7 +194,7 @@ stays roughly flat (the alpha remains fast relative to the DT ions).
   Gordon–Kim nuclear vs PSTAR/experiment for LiF, SiO₂, Al₂O₃, H₂O — shows the nuclear
   contribution filling part of the low-energy deficit.
 
-## G. Scope and limitations (recommend including)
+## H. Scope and limitations (recommend including)
 
 - The Gordon–Kim potential is a frozen-density electron-gas model; its ~7 % offset from the
   ZBL cold-nuclear reference is the expected sign and magnitude of frozen-density
