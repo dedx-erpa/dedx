@@ -137,17 +137,22 @@ and citations in `docs/recent_stopping_experiments.md`; drivers `exp_compare.py`
 
 **Frenje 2019 — ion stopping in DT plasma (Tₑ≈2 keV): the nuclear/ion channel.** Frenje et
 al. found that the electronic (Brown–Preston–Singleton) stopping underpredicts the measured
-ion stopping by ~20% at vᵢ≈0.3 v_th near the Bragg peak, and attributed the gap to
-nuclear-elastic scattering — precisely the projectile-ion/target-ion channel added here.
-For a proton in DT plasma at Tₑ=2 keV the model's nuclear/ion contribution is 6% of the
-total at high velocity but rises to **23% at vᵢ≈0.3 v_th**, the same magnitude and
-direction as the discrepancy Frenje attributed to nuclear-elastic scattering. The added
-channel thus accounts, quantitatively, for the missing stopping identified in that
-experiment. (Fig. exp_compare_icf, right.)
+ion stopping near the Bragg peak and attributed the gap to nuclear-elastic scattering and
+possibly coupled ion modes — the projectile-ion/target-ion channel added here. We digitized
+their Fig. 5 (measured −ΔEᵢ/Zᵢ² vs Eᵢ/Aᵢ and the BPS curve) and overlaid the model for a
+proton in DT plasma at Tₑ=2 keV, with a single areal-density scale fixed by matching the
+model electronic stopping to BPS (the path-integrated profile, their Fig. 2, was not
+digitized). The model + nuclear reproduces the measured stopping **within error at three of
+the four probe energies** (0.61, 2.4, 15.7 MeV/u). At the lowest velocity (0.19 MeV/u) the
+nuclear/ion channel lifts the stopping ~12% above the electronic value — in the direction of
+the measured low-velocity excess Frenje attributed to nuclear-elastic scattering — and the
+nuclear fraction grows toward lower velocity (≈23% of the total at 0.1 MeV/u, below the
+measured range). A residual gap remains at the lowest point, consistent with Frenje's
+additional suggestion of coupled ion modes (not modeled here). (Fig. exp_frenje.)
 
-`[NOTE]` This is the strongest experimental motivation for the nuclear/ion addition —
-consider leading the verification with it. The vᵢ/v_th↔energy mapping used here is
-approximate; digitized data points would make it a point-by-point fit.
+`[NOTE]` This is the strongest experimental motivation for the nuclear/ion addition. The
+overlay uses one global areal-density scale because the Tₑ(r)/nₑ(r) profile (their Fig. 2)
+was not digitized; with the profile the model −ΔE could be computed absolutely per probe.
 
 **Cayzac 2017 — N ions in carbon plasma (Tₑ≈150 eV).** At full ionization the model
 reproduces the measured plasma stopping enhancement: dE/dx(plasma)/dE/dx(solid) = 1.62 at
