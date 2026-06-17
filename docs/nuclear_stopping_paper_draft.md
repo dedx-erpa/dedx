@@ -171,10 +171,14 @@ measured/DFT stopping magnitude across 0.2–0.65 MeV (e.g. 0.40 MeV: 0.44 vs 0.
 model at this temperature (carbon barely ionizes further, Z̄ 2.7→3.0) — as in classical and
 TD-DFT treatments; we note it rather than claim it. (Fig. exp_compare, left.)
 
-**Zylstra 2015 — proton in warm dense Be (Tₑ≈32 eV).** The model gives ~5% increased loss
-vs cold matter, the direction and order of the measured effect, consistent with Zylstra's
-conclusion that the average-atom LDA (this model's framework) reproduces the data.
-(Fig. exp_compare_icf, left.)
+**Zylstra 2015 — proton in warm dense Be (Tₑ≈32 eV): a parameter-free absolute test.** For
+14.7 MeV D³He protons through the 94 mg/cm² Be foil (areal density taken from the paper, no
+fitting), the model reproduces the measured energy downshift: ΔE = 2.87 (cold) and 2.97 MeV
+(warm) vs measured 2.72 and 2.85–2.98 MeV (≈5% high on cold), and it matches Zylstra's own
+AA-LDA values (2.80, 2.87) — the framework they found consistent with the data — to within
+~3%. The model's warm/cold enhancement (+3.3%) agrees with Zylstra's AA-LDA (+2.5%), both at
+the low end of the measured spread. Because the foil is flat with a known areal density,
+this is a genuine parameter-free absolute comparison. (Fig. exp_zylstra.)
 
 **Community benchmark — charged-particle stopping workshops.** The model is run on the
 standardized cases of the two code-comparison workshops (Grabowski et al. 2020; Stanek et

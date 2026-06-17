@@ -25,3 +25,8 @@ line documenting the source and units.
   0-15 instead of 0-5 keV (divide by 3); ne radius axis was offset by +110 um
   (subtract 110). After correction: Te peak 3.7 keV @ r=0, ne peak 9.8e23 @
   r=38 um, giving areal density (radius-diameter) 3.6-7.1e21 /cm^2.
+- `Zylstra_fig4_cold.csv`, `Zylstra_fig4_warm.csv` -- Zylstra 2015 (PRL 114,
+  215002) Fig. 4: 14.7 MeV proton downshift -dE through Be, cold (shots
+  72025/72026 + SRIM/ICRU/AA-LDA) and warm (72018/72024 + B+F/AA-LDA/CIP).
+  x is a category index (0..4), y is -dE in MeV. Used by `exp_zylstra.py`
+  (Be foil 532 um x 1.77 g/cc = 94 mg/cm^2 areal density).
