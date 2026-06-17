@@ -347,6 +347,62 @@ def nuclear_stopping(E_grid_MeVamu, zp, zt, m0_amu, mt_amu, rs, te_eV, ti_eV,
 
 
 # ---------------------------------------------------------------------------
+# projected (practical) range:  the SAME deflection integral used for nuclear
+# stopping is, up to a constant, the momentum-transfer (transport) cross section
+# that controls the projectile's multiple-angle scattering and hence the
+# difference between the CSDA pathlength and the projected range that Ziegler /
+# Janni / PSTAR / IAEA tables quote.
+# ---------------------------------------------------------------------------
+def transport_xsec(E_grid_MeVamu, zp, zt, m0_amu, mt_amu, rs, te_eV,
+                   zbar, potential='gk', od=None, gk_muffin=True):
+    """Nuclear momentum-transfer (transport) cross section sigma_tr [cm^2].
+
+    sigma_tr = int (1-cos theta) dsigma = 4 pi S(Ec), with the same impact-
+    parameter integral S(Ec)=int sin^2(theta/2) p dp used for nuclear stopping.
+    Cold-target (Ti=0) form, in the center-of-mass scattering angle (exact for a
+    light projectile on a heavier target; the lab/CM angle differ by O(m0/mt)).
+    """
+    E = np.atleast_1d(np.asarray(E_grid_MeVamu, dtype=float))
+    m0_au = m0_amu * AMU_ME
+    mt_au = mt_amu * AMU_ME
+    ne = zbar * Nion(rs)
+    U = build_potential(potential, float(zp), zbar, ne, te_eV / HARTREE_EV,
+                        od=od, rs=rs, gk_muffin=gk_muffin)
+    E_lab = E * m0_amu * 1e6 / HARTREE_EV
+    Ec = (mt_au / (m0_au + mt_au)) * E_lab
+    Sfunc = make_S_interp(U, Ec.min(), Ec.max())
+    S = np.array([Sfunc(ec) for ec in Ec])
+    return 4.0 * np.pi * S * BOHR2_CM2
+
+
+def detour_factor(E, S_areal, sigma_tr, A_eff):
+    """Projected/CSDA range ratio from the nuclear transport cross section.
+
+    Transport result: the mean direction cosine after path s decays as
+    <cos theta>(s) = exp(- int N sigma_tr ds'), so the projected range is
+    R_proj = int <cos theta> ds.  In areal units (N ds -> (N_A/A) dxi):
+        tau(E)      = (N_A/A_eff) int_E^E0 sigma_tr/S dE'
+        detour(E0)  = int_0^E0 exp(-tau)/S dE  /  int_0^E0 1/S dE
+    S_areal in MeV/(g/cm^2), sigma_tr in cm^2.  Returns detour(E0) on the grid.
+    Reproduces the PSTAR projected/CSDA ratio for protons above ~0.1 MeV; near
+    end of range the small-angle transport closure underestimates the projected
+    range (the last microns are large-angle single scattering) and the result is
+    potential-model dependent.
+    """
+    NA = 6.02214076e23
+    invS = 1.0 / S_areal
+    integ = (NA / A_eff) * sigma_tr * invS
+    T = np.concatenate([[0.0], np.cumsum(0.5 * (integ[1:] + integ[:-1]) * np.diff(E))])
+    det = np.ones_like(E)
+    for k in range(1, len(E)):
+        tau = T[k] - T[:k + 1]
+        num = np.trapezoid(np.exp(-tau) * invS[:k + 1], E[:k + 1])
+        den = np.trapezoid(invS[:k + 1], E[:k + 1])
+        det[k] = num / den if den > 0 else 1.0
+    return det
+
+
+# ---------------------------------------------------------------------------
 # output: augment a finished dedx.dat with nuclear columns -> dedx_nuc.dat
 # ---------------------------------------------------------------------------
 _POT_ORDER = ['gk', 'yukawa', 'ionsphere']     # preference for the "total" column
@@ -405,6 +461,23 @@ def write_nuclear(od, zp, te_eV, ti_eV, potlist, species, fout='dedx_nuc.dat',
     am = sum(fac.ATOMICMASS[int(sp['zt'])] * sp['w'] for sp in species) / wtot
     rng = rd.int_range(np.array((E, total)), m=am)
 
+    # projected (practical) range = CSDA range * detour, from the nuclear
+    # transport cross section of the chosen potential (number-weighted over
+    # species).  detour<1; -> 1 at high energy, smaller toward end of range.
+    NA = 6.02214076e23
+    sigtr = np.zeros_like(E)
+    for sp in species:
+        h = rd.rdedx(sp['sod'], header='')
+        st = transport_xsec(E, zp, int(sp['zt']), m0_amu,
+                            fac.ATOMICMASS[int(sp['zt'])], float(h['rs']),
+                            te_eV, float(h['zbar']), potential=chosen,
+                            od=sp['sod'], gk_muffin=gk_muffin)
+        sigtr += np.atleast_1d(st) * sp['w']
+    sigtr /= wtot
+    S_areal = total * (NA / am) * 1e-21           # 1e-15 eVcm2/atom -> MeV/(g/cm2)
+    detour = detour_factor(E, S_areal, sigtr, am)
+    proj = rng * detour
+
     path = '%s/%s' % (od, fout)
     with open(path, 'w') as f:
         f.write('#    zp = %10.4E\n' % zp)
@@ -412,16 +485,19 @@ def write_nuclear(od, zp, te_eV, ti_eV, potlist, species, fout='dedx_nuc.dat',
         f.write('#    Ti = %15.8E\n' % ti_eV)
         f.write('# npot = %s\n' % ','.join(potlist))
         f.write('# total = electronic + %s\n' % chosen)
+        f.write('# range = CSDA pathlength; proj_range = projected (practical) '
+                'range = range*detour\n')
         hdr = '#   E/AMU(MeV)        dEdx_e'
         for p in potlist:
             hdr += '   dEdx_n[%s]' % p
-        hdr += '     dEdx_tot         range\n'
+        hdr += '     dEdx_tot         range     proj_range        detour\n'
         f.write(hdr)
         for i in range(len(E)):
             f.write('%15.8E %13.6E' % (E[i], dedx_e[i]))
             for p in potlist:
                 f.write(' %13.6E' % cols[p][i])
-            f.write(' %13.6E %13.6E\n' % (total[i], rng[i]))
+            f.write(' %13.6E %13.6E %13.6E %13.6E\n'
+                    % (total[i], rng[i], proj[i], detour[i]))
     return path
 
 

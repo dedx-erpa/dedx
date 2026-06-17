@@ -159,9 +159,21 @@ This writes dedx_nuc.dat in the output directory, with columns
       dEdx_e   (electronic, 10^-15 eV cm^2/atom)  
       dEdx_n[<pot>]  (one column per requested potential)  
       dEdx_tot (electronic + chosen potential)  
-      Range(mg/cm2) of the total  
+      range (mg/cm2)       -- CSDA pathlength of the total stopping  
+      proj_range (mg/cm2)  -- projected (practical) range = range * detour  
+      detour               -- projected/CSDA ratio  
 and, with --plot=1, the figure dedx_nuc.pdf.  The same plot can be made from an  
 existing run with  python -c "import nuclear; nuclear.plot_nuclear('<od>')".  
+
+The projected (practical) range is the quantity that Ziegler/SRIM, Janni, PSTAR,  
+and the IAEA tables quote alongside the CSDA pathlength.  It is obtained from the  
+nuclear momentum-transfer (transport) cross section sigma_tr = 4*pi*S, where S is  
+the same impact-parameter integral the model evaluates for nuclear stopping: the  
+projectile's mean direction cosine decays as exp(-int N sigma_tr ds), so  
+proj_range = int <cos theta> ds.  This reproduces the PSTAR projected/CSDA ratio  
+for protons above ~0.1 MeV; near end of range the transport closure overestimates  
+the projected range (the last microns are large-angle single scattering) and the  
+value is potential-model dependent.  
 
 The combined (electronic + nuclear) model spans cold solids through warm/hot  
 dense matter and on to fusion plasmas: at low T the nuclear term is the classical  
