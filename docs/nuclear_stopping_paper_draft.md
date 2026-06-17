@@ -99,6 +99,16 @@ over-repulsion of Gordon–Kim and within ZBL's own ~10 % fit uncertainty). The 
 ion-sphere and Yukawa potentials fall below the reference, as in the source paper, because
 they screen with the free electrons only.
 
+**Proton range vs PSTAR (Fig. range_nuc).** Because the PSTAR CSDA range includes nuclear
+stopping, it is a parameter-free cold-target test of the *total* (electronic + nuclear)
+model. For protons in C, Al, Ag, and Au the electronic-only range overshoots the PSTAR CSDA
+range at the lowest energies — by +66 % (C), +30 % (Al), +23 % (Ag), and +6 % (Au) at 1 keV
+— because the nuclear channel is absent. Adding the Gordon–Kim nuclear term brings C, Al,
+and Ag into agreement with PSTAR to within a few percent, and slightly overcorrects gold
+(≈ −10 %), the same frozen-density over-repulsion seen in the cold-Al nuclear comparison.
+This is an independent confirmation that the nuclear contribution carries the correct
+magnitude and energy dependence at the level that controls ranges.
+
 **FAC vs. SCAALP (Fig. nuc_fac_compare).** The original model used the SCAALP average-atom
 model; here the densities come from FAC. For the recommended Gordon–Kim potential the two
 agree (and both land on NIST), because the potential is built from the *total* electron
@@ -246,6 +256,9 @@ the peak because they add inner-shell contributions a valence-only treatment omi
 - **Fig. exp_stanek_depth** (`stopping_depth.pdf`): shell-resolved origin of the Al eRPA-AA
   stopping — median stopping depth vs velocity (valence-dominated at low v, moving inward as
   the projectile speeds up) and cumulative stopping fraction vs radius at several velocities.
+- **Fig. range_nuc** (`range_nuc.pdf`): proton CSDA range in C, Al, Ag, Au relative to PSTAR
+  — electronic-only vs electronic + Gordon–Kim nuclear; the nuclear term removes the
+  low-energy overshoot of the electronic-only range.
 
 ## H. Scope and limitations (recommend including)
 
