@@ -598,6 +598,31 @@ def plot_nuclear(od, fin='dedx_nuc.dat', fout='dedx_nuc.pdf', show_range=True,
     return out
 
 
+def plot_ranges(od, fin='dedx_nuc.dat', fout='ranges.pdf', pstar=None):
+    """Plot CSDA (pathlength) and projected (practical) range vs energy from
+    od/dedx_nuc.dat, overlaying the PSTAR CSDA and projected ranges if a
+    'pstar' file (PSTAR-format) is given.  Returns the saved figure path."""
+    import matplotlib
+    matplotlib.use('Agg')
+    import matplotlib.pyplot as plt
+    d = np.loadtxt('%s/%s' % (od, fin), comments='#')
+    E, rng, proj = d[:, 0], d[:, -3], d[:, -2]
+    fig, ax = plt.subplots(figsize=(7, 5.5))
+    ax.loglog(E, rng, 'b-', lw=2, label='CSDA pathlength (this work)')
+    ax.loglog(E, proj, 'r-', lw=2, label='projected range (this work)')
+    if pstar:
+        p = np.loadtxt(pstar, skiprows=8)
+        m = (p[:, 0] > E.min()) & (p[:, 0] < E.max())
+        ax.loglog(p[m, 0], p[m, 4] * 1e3, 'b o', mfc='none', ms=4, label='PSTAR CSDA')
+        ax.loglog(p[m, 0], p[m, 5] * 1e3, 'r s', mfc='none', ms=4, label='PSTAR projected')
+    ax.set_xlabel('energy (MeV/AMU)'); ax.set_ylabel('range (mg/cm$^2$)')
+    ax.legend(fontsize=9); ax.grid(alpha=.3, which='both')
+    fig.tight_layout()
+    out = '%s/%s' % (od, fout)
+    fig.savefig(out); plt.close(fig)
+    return out
+
+
 # ---------------------------------------------------------------------------
 # self-test: Rutherford analytic check of the scattering integrator
 # ---------------------------------------------------------------------------
