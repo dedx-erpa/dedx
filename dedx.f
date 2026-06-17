@@ -445,12 +445,18 @@ c     ------------------
                call intgrl(nrd,+h,rhol,sum,rh1)
                sumitg = cubint(rs,nrd,r,sum,nrd)
                dedx(ie) = 4.58284e17*(zeff/vion)**2 * sumitg
+c     mre = mep/nre truncates, so when mep is not a multiple of nre the
+c     stride is too short and (ie-1)/mre can exceed nre-1.  Guard ire<=nre:
+c     without it, rdedx(ire>nre,iir) aliases rdedx(1..,iir+1) (column-major)
+c     and high-energy slices corrupt the radial columns of low-energy slices.
                if (mod(ie-1,mre) .eq. 0) then
                   ire = 1 + (ie-1)/mre
-                  do iir=1,nrd 
-                     rdedx(ire,iir) = sum(iir)/sumitg
-                     cdedx(ire,iir) = rhol(iir)*h
-                  enddo
+                  if (ire .le. nre) then
+                     do iir=1,nrd
+                        rdedx(ire,iir) = sum(iir)/sumitg
+                        cdedx(ire,iir) = rhol(iir)*h
+                     enddo
+                  endif
                endif
                fdedx(ie) = ee(ie)/(dedx(ie)*bcoef)
 c               call intgrl(nrd,+h,rhofl,sum,rh1)
