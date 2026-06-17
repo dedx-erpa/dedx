@@ -183,8 +183,7 @@ this is a genuine parameter-free absolute comparison. (Fig. exp_zylstra.)
 **Community benchmark — charged-particle stopping workshops.** The model is run on the
 standardized cases of the two code-comparison workshops (Grabowski et al. 2020; Stanek et
 al. 2024): alpha-particle stopping vs velocity for H, C, Be, Al, Cu at the defined ρ, T.
-Stanek et al. note that average-atom models agree with the reference beyond the stopping
-peak. The model predictions (alpha electronic stopping, 10⁻¹⁵ eV cm²/atom) are:
+The model predictions (alpha electronic stopping, 10⁻¹⁵ eV cm²/atom) are:
 
 | Case | target, ρ, T | Z̄ | peak Se | vp at peak (a.u.) | Se at vp=2 a.u. |
 |---|---|---|---|---|---|
@@ -194,7 +193,39 @@ peak. The model predictions (alpha electronic stopping, 10⁻¹⁵ eV cm²/atom)
 | Al1 | Al, 2.7 g/cc, 1 eV  | 2.97 | 87.1 | 1.5 | 79.9 |
 | Cu1 | Cu, 8.96 g/cc, 1 eV | 4.46 | 101.2 | 2.1 | 100.7 |
 
-(Fig. exp_bench; ready for overlay against the workshop consensus bands.)
+Overlaying the eRPA-AA electronic stopping directly on the Stanek Fig. 12 TD-DFT-MD
+reference points (Fig. exp_stanek; H, C, Al) reproduces the behavior Stanek et al. report
+for average-atom models: the curves converge with the data beyond the stopping peak and sit
+above the data near and below the peak, by 24–55 % at the peak (H 1.30, C 1.24, Al 1.55;
+ratio model/data). The deviation grows with the size of the bound-electron complement,
+largest for Al.
+
+A sharper test is available for carbon, where Stanek Fig. 12 also reports two of Stanek's
+*own* average-atom curves. Plotted on the same axis (Fig. exp_stanek_C_AA), the eRPA-AA peak
+(1.59×10¹⁰ eV/cm) lands *between* Stanek's two AA curves (1.55 and 1.67×10¹⁰), and all three
+average-atom models sit 21–31 % above the TD-DFT-MD data at the peak. Our independent
+eRPA-AA therefore reproduces the workshop average-atom family, with a somewhat broader peak;
+on the high-velocity tail the TD-DFT-MD data fall between our model (above) and Stanek's AA
+curves (below). (The two AA curves were digitized against the energy-per-nucleon axis of the
+dual-axis plot; the velocity mapping vp = 1.389×10⁹·√(E[MeV/u]) places them on the labeled
+vp[cm/s] axis, reproducing the published peak position and curve span.)
+
+**Where the average-atom stopping comes from — shell-resolved depth.** Because the eRPA-AA
+integrates dE/dx over the full bound+free radial electron density, the contribution can be
+decomposed by radius — equivalently by enclosed electron number, core to valence (Fig.
+exp_stanek_depth). For Al this directly addresses the average-atom-vs-TD-DFT-MD comparison:
+TD-DFT-MD propagates the valence electrons explicitly and *adds an estimated deep-core
+contribution*, whereas the eRPA-AA includes all electrons self-consistently with DFT-like
+local-field corrections. The decomposition shows the median stopping depth is the loosely
+bound valence/conduction electrons at the Wigner–Seitz edge at low velocity (r₅₀ ≈ 2.4 a.u.)
+and moves steadily *inward* as the projectile speeds up — the core re-engaging — reaching
+≈1.0 a.u. only by 1 MeV/u. Crucially, throughout the Stanek velocity range (the Bragg peak
+and above, where the average-atom excess appears) the median depth lies in the valence/free
++ outer-L region, **not** the deep K-shell. The average-atom-vs-TD-DFT-MD difference near the
+peak is therefore attributable to the treatment of the valence/free electrons (where the
+methods' local-field and exchange–correlation choices differ), not to an over-counting of
+deep-core electrons — refining the common assumption that average-atom models run high near
+the peak because they add inner-shell contributions a valence-only treatment omits.
 
 ## G. Figures
 
@@ -209,6 +240,13 @@ peak. The model predictions (alpha electronic stopping, 10⁻¹⁵ eV cm²/atom)
 - **Fig. nuc_gap_4panel** (`nuc_gap_4panel.pdf`, optional): total = best-κ electronic +
   Gordon–Kim nuclear vs PSTAR/experiment for LiF, SiO₂, Al₂O₃, H₂O — shows the nuclear
   contribution filling part of the low-energy deficit.
+- **Fig. exp_stanek** (`exp_stanek.pdf`): eRPA-AA alpha electronic stopping overlaid on the
+  Stanek 2024 Fig. 12 TD-DFT-MD reference points for H, C, Al.
+- **Fig. exp_stanek_C_AA** (`exp_stanek_C_AA.pdf`): carbon detail — eRPA-AA vs Stanek's two
+  own average-atom curves and the TD-DFT-MD data on the labeled vp[cm/s] axis.
+- **Fig. exp_stanek_depth** (`stopping_depth.pdf`): shell-resolved origin of the Al eRPA-AA
+  stopping — median stopping depth vs velocity (valence-dominated at low v, moving inward as
+  the projectile speeds up) and cumulative stopping fraction vs radius at several velocities.
 
 ## H. Scope and limitations (recommend including)
 
