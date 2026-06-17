@@ -201,14 +201,13 @@ ratio model/data). The deviation grows with the size of the bound-electron compl
 largest for Al.
 
 A sharper test is available for carbon, where Stanek Fig. 12 also reports two of Stanek's
-*own* average-atom curves. Plotted on the same axis (Fig. exp_stanek_C_AA), the eRPA-AA peak
-(1.59×10¹⁰ eV/cm) lands *between* Stanek's two AA curves (1.55 and 1.67×10¹⁰), and all three
-average-atom models sit 21–31 % above the TD-DFT-MD data at the peak. Our independent
-eRPA-AA therefore reproduces the workshop average-atom family, with a somewhat broader peak;
-on the high-velocity tail the TD-DFT-MD data fall between our model (above) and Stanek's AA
-curves (below). (The two AA curves were digitized against the energy-per-nucleon axis of the
-dual-axis plot; the velocity mapping vp = 1.389×10⁹·√(E[MeV/u]) places them on the labeled
-vp[cm/s] axis, reproducing the published peak position and curve span.)
+*own* average-atom curves. Plotted on the same velocity axis (Fig. exp_stanek_C_AA), the
+eRPA-AA peak (1.59×10¹⁰ eV/cm) lands *between* Stanek's two AA curves (solid 1.53×10¹⁰,
+dot-dash 1.69×10¹⁰), and all three average-atom models sit 19–32 % above the TD-DFT-MD data
+at the peak. The three average-atom high-velocity tails converge on the shared Bethe limit.
+Our independent eRPA-AA therefore reproduces the workshop average-atom family across the full
+velocity range, confirming that the ~25 % excess over TD-DFT-MD near the peak is a property
+of the average-atom treatment as a class, not of our particular implementation.
 
 **Where the average-atom stopping comes from — shell-resolved depth.** Because the eRPA-AA
 integrates dE/dx over the full bound+free radial electron density, the contribution can be
