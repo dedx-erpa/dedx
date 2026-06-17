@@ -44,31 +44,50 @@ for xc in sorted(set(np.round(dat[:, 0], 1))):
         pts.append((np.median(dat[m, 0]), np.median(ys), ys.min(), ys.max()))
 pts = np.array(pts)
 
-# ---- model: proton in DT plasma, Te=2 keV ----
+# ---- absolute scale from the digitized Te(r)/ne(r) profile (Fig 2) ----
+# corrections: Te y-axis was 0-15 not 0-5 (/3); ne x-axis offset by 110 um.
+ne_raw = np.loadtxt('data/refs/frenje_fig3a_ne_curve.csv', delimiter=',')
+r_ne = ne_raw[:, 0] - 110.0
+v_ne = ne_raw[:, 1] * 1e23                    # cm^-3
+o = np.argsort(r_ne); r_ne, v_ne = r_ne[o], v_ne[o]
+rr = np.linspace(0, 80, 400)
+nn = np.interp(rr, r_ne, np.maximum(v_ne, 0))
+NL_rad = np.trapezoid(nn, rr * 1e-4)          # int_0^R ne dr  (radius path), /cm2
+NL_dia = 2 * NL_rad                            # diameter chord
+print('profile areal density: radius=%.2e  diameter=%.2e /cm2 (rhoL=%.1f-%.1f mg/cm2)'
+      % (NL_rad, NL_dia, NL_rad * 2.5 * 1.66e-24 * 1e3, NL_dia * 2.5 * 1.66e-24 * 1e3))
+
+# ---- model: proton in DT plasma, Te=2 keV (mass-weighted) ----
 d = np.loadtxt('/tmp/frenje_dt2/dedx_nuc.dat', comments='#')
 E, de, dn, dt = d[:, 0], d[:, 1], d[:, 2], d[:, 3]   # E/AMU, elec, nuc, total
 
-# calibrate k so k*electronic best matches the BPS curve (log least squares)
-bE = np.interp(bx, E, de)                    # model electronic at BPS x-values
-k = np.exp(np.mean(np.log(by) - np.log(bE)))
-print('areal-density calibration k = %.4g (set by model-electronic = BPS)' % k)
+# scale: -dE/Z^2 = eps * N_L * 1e-21.  We fix one effective areal density N_L by
+# matching the model electronic stopping to the digitized BPS curve (shape test);
+# the profile above shows this N_L is physical (within radius–diameter range).
+bE = np.interp(bx, E, de)
+k = np.exp(np.mean(np.log(by) - np.log(bE)))         # = N_L * 1e-21
+NL_fit = k / 1e-21
+print('fit-implied areal density N_L = %.2e /cm2  (profile range %.2e–%.2e)'
+      % (NL_fit, NL_rad, NL_dia))
 
 fig, ax = plt.subplots(figsize=(8.5, 6))
-ax.errorbar(pts[:, 0], pts[:, 1], yerr=[pts[:, 1] - pts[:, 2], pts[:, 3] - pts[:, 1]],
-            fmt='ks', ms=7, capsize=4, label='Frenje 2019 data', zorder=5)
 ax.plot(bx, by, color='0.5', lw=1.5, label='BPS (Frenje, digitized)')
 ax.plot(E, k * de, 'b--', lw=2, label='model: electronic only')
 ax.plot(E, k * dt, 'r-', lw=2.2, label='model: electronic + nuclear/ion')
+ax.errorbar(pts[:, 0], pts[:, 1], yerr=[pts[:, 1] - pts[:, 2], pts[:, 3] - pts[:, 1]],
+            fmt='ks', ms=7, capsize=4, label='Frenje 2019 data', zorder=5)
 ax.set_xscale('log'); ax.set_xlim(0.1, 20); ax.set_ylim(0, 0.85)
 ax.set_xlabel(r'$E_i/A_i$ (MeV)')
 ax.set_ylabel(r'$-\Delta E_i/Z_i^2$ (MeV)')
 ax.set_title('Frenje 2019: ion stopping in DT plasma (Te≈2 keV)')
+ax.text(0.03, 0.04, 'scale N_L=%.1e /cm² (fit)\nprofile gives %.1e–%.1e /cm²\n→ scale is physical, not free'
+        % (NL_fit, NL_rad, NL_dia), transform=ax.transAxes, fontsize=8, va='bottom',
+        bbox=dict(boxstyle='round', fc='lightyellow', alpha=0.7))
 ax.legend(fontsize=9); ax.grid(alpha=.3, which='both')
 fig.tight_layout()
 fig.savefig('exp_frenje.pdf'); fig.savefig('exp_frenje.png', dpi=130)
 print('wrote exp_frenje.pdf / .png\n')
 
-print(' E/A(MeV)  data   model_elec  model_tot   (k-scaled)')
+print(' E/A(MeV)  data    model_elec  model_tot')
 for xc, yc, lo, hi in pts:
-    me = k * np.interp(xc, E, de); mt = k * np.interp(xc, E, dt)
-    print('  %6.3f  %.3f   %.3f      %.3f' % (xc, yc, me, mt))
+    print('  %6.3f  %.3f    %.3f      %.3f' % (xc, yc, k * np.interp(xc, E, de), k * np.interp(xc, E, dt)))

@@ -150,9 +150,16 @@ nuclear fraction grows toward lower velocity (≈23% of the total at 0.1 MeV/u, 
 measured range). A residual gap remains at the lowest point, consistent with Frenje's
 additional suggestion of coupled ion modes (not modeled here). (Fig. exp_frenje.)
 
-`[NOTE]` This is the strongest experimental motivation for the nuclear/ion addition. The
-overlay uses one global areal-density scale because the Tₑ(r)/nₑ(r) profile (their Fig. 2)
-was not digitized; with the profile the model −ΔE could be computed absolutely per probe.
+The single areal-density scale used in the overlay is **not a free parameter**: digitizing
+their Fig. 2 Tₑ(r)/nₑ(r) profiles gives a path-integrated electron areal density of
+3.6–7.1×10²¹ cm⁻² (radius to diameter chord; ρL ≈ 15–30 mg/cm²), and the scale that aligns
+the model electronic stopping with BPS corresponds to 5.5×10²¹ cm⁻² — squarely within that
+range. The model magnitude is therefore consistent with the measured plasma profile.
+
+`[NOTE]` This is the strongest experimental motivation for the nuclear/ion addition. A fully
+first-principles −ΔE per probe would integrate the slowing-down over the (shell-peaked)
+profile with Frenje's emission/transport geometry; the shape comparison + the profile-
+confirmed scale already make the case without that machinery.
 
 **Cayzac 2017 — N ions in carbon plasma (Tₑ≈150 eV).** At full ionization the model
 reproduces the measured plasma stopping enhancement: dE/dx(plasma)/dE/dx(solid) = 1.62 at

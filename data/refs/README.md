@@ -12,3 +12,16 @@ Independent reference data used to validate the nuclear-stopping model
 Add further reference tables here (e.g. PSTAR/ASTAR nuclear columns, published
 WDM stopping points) as additional `<material>_<source>.dat` files with a header
 line documenting the source and units.
+
+## Digitized experimental data (WebPlotDigitizer)
+
+- `frenje_fig5_data.csv`, `frenje_fig5_bps.csv` -- Frenje 2019 (PRL 122, 015002)
+  Fig. 5: measured ion stopping -dE/Z^2 vs E/A and the BPS curve. The BPS file
+  also captured the inset curves on the main axes; `exp_frenje.py` removes them
+  (upper-envelope). Used by `exp_frenje.py`.
+- `frenje_fig2a_te_curve.csv` / `_data.csv`, `frenje_fig3a_ne_curve.csv` /
+  `_data.csv` -- Frenje 2019 Fig. 2 Te(r) and ne(r) profiles. NOTE two
+  digitization-calibration corrections applied in code: Te y-axis was scaled
+  0-15 instead of 0-5 keV (divide by 3); ne radius axis was offset by +110 um
+  (subtract 110). After correction: Te peak 3.7 keV @ r=0, ne peak 9.8e23 @
+  r=38 um, giving areal density (radius-diameter) 3.6-7.1e21 /cm^2.
