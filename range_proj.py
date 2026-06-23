@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 T. A. Mehlhorn, M. F. Gu, and I. Golovkin
 """
 range_proj.py -- total-stopping (electronic + Gordon-Kim nuclear) proton ranges
 in C, Al, Ag, Au: CSDA pathlength and projected (practical) range, vs PSTAR.

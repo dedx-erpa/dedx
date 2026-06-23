@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 T. A. Mehlhorn, M. F. Gu, and I. Golovkin
 """Generate one eRPA loss table (parametrized np for multi-core boxes).
 Usage: python gen_table.py <outfile> <te_eV> <wi_Ha> [np]
 Mirrors dief.__main__ grids (30 dens 1e19-1e29, 50 E 1e-3..1e2 MeV).

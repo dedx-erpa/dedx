@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 T. A. Mehlhorn, M. F. Gu, and I. Golovkin
 """
 exp_stanek_C_AA.py -- carbon (10 g/cc, 2 eV) detail panel from Stanek 2024 Fig 12:
 overlay our eRPA-AA on BOTH the TD-DFT-MD reference points and Stanek's own two

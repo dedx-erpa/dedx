@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 T. A. Mehlhorn, M. F. Gu, and I. Golovkin
 """
 exp_stanek.py -- overlay our eRPA-AA alpha electronic stopping on the TD-DFT-MD
 reference points of Stanek 2024 (2nd charged-particle transport workshop), Fig 12,

@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 T. A. Mehlhorn, M. F. Gu, and I. Golovkin
 """
 radial_contrib.py -- radial origin of the eRPA-LDA proton stopping in cold Al.
 

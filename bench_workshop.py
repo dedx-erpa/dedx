@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 T. A. Mehlhorn, M. F. Gu, and I. Golovkin
 """
 bench_workshop.py -- run the model on the charged-particle stopping-power
 workshop benchmark cases (Grabowski et al. 2020; Stanek et al. 2024) and

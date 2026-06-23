@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 T. A. Mehlhorn, M. F. Gu, and I. Golovkin
 """
 exp_zylstra.py -- compare the total eRPA model to Zylstra 2015 (PRL 114, 215002):
 energy downshift (-Delta E) of 14.7 MeV D3He protons through a Be foil, cold vs

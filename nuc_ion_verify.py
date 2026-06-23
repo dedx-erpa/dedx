@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 T. A. Mehlhorn, M. F. Gu, and I. Golovkin
 """
 nuc_ion_verify.py -- verify the finite-Ti ion-ion stopping of our model against
 the Fokker-Planck slowing-down (the projectile-ion / target-ion drag), i.e. the

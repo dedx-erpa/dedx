@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 T. A. Mehlhorn, M. F. Gu, and I. Golovkin
 """
 nuc_fac_compare.py -- compare the FAC-based implementation of the Faussurier
 nuclear-stopping model against the original paper (which used the SCAALP

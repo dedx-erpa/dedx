@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 T. A. Mehlhorn, M. F. Gu, and I. Golovkin
 """
 param_space.py -- velocity-ratio / electron-coupling map of reported ion-stopping
 experiments, recreating Fig. 1 of the GSI flagship proposal "Experiments on energy

@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 T. A. Mehlhorn, M. F. Gu, and I. Golovkin
 """
 bragg_spread.py -- how finite ion-source energy spread washes out the Bragg
 peak and erases the differences between stopping-power models.

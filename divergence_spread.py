@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 T. A. Mehlhorn, M. F. Gu, and I. Golovkin
 """
 divergence_spread.py -- how finite beam divergence (and the combination of
 energy spread + divergence) smears the energy-deposition profile.

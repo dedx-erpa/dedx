@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 T. A. Mehlhorn, M. F. Gu, and I. Golovkin
 """
 Compound dE/dx comparison plot: overlays PSTAR + IAEA experiment + the
 gapless eRPA baseline (data/<a>) + any gap variants (data/<a>_<N>).

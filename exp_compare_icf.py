@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 T. A. Mehlhorn, M. F. Gu, and I. Golovkin
 """
 exp_compare_icf.py -- compare the total eRPA stopping model against two
 ICF-relevant plasma stopping measurements:

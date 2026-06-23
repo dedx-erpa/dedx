@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 T. A. Mehlhorn, M. F. Gu, and I. Golovkin
 """
 alpha_dt_verify.py -- verify alpha-particle (3.5 MeV He-4) stopping and range in
 a DT plasma, and the electron/ion deposition split, vs temperature.

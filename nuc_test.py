@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 T. A. Mehlhorn, M. F. Gu, and I. Golovkin
 """
 nuc_test.py -- validation / example driver for the nuclear stopping model
 (nuclear.py), reproducing the key results of Faussurier, Blancard & Gauthier,

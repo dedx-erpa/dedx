@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 T. A. Mehlhorn, M. F. Gu, and I. Golovkin
 """
 exp_frenje.py -- compare the total eRPA model to Frenje 2019 (PRL 122, 015002),
 Fig. 5: measured ion stopping -dE_i/Z_i^2 vs E_i/A_i in DT plasma (Te~2 keV).

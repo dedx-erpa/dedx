@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 T. A. Mehlhorn, M. F. Gu, and I. Golovkin
 """
 nuc_gap_fig.py -- the 4-panel Levine-Louie band-gap comparison (LiF, SiO2,
 Al2O3, H2O) with the nuclear (ion-ion) stopping power added in.

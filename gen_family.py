@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 T. A. Mehlhorn, M. F. Gu, and I. Golovkin
 """Generate the Stage-2 cold gap-table family (te=0.025) over a wi grid.
 Each table is generated in a fresh subprocess (clean isolation).
 Usage: python gen_family.py [np]

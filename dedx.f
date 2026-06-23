@@ -1,3 +1,5 @@
+c SPDX-License-Identifier: GPL-3.0-or-later
+c Copyright (C) 2026 T. A. Mehlhorn, M. F. Gu, and I. Golovkin
 c ******************************************************************** c
 c                                                                      c
 c                            D E V S D X                               c

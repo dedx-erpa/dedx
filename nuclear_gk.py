@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 T. A. Mehlhorn, M. F. Gu, and I. Golovkin
 """
 nuclear_gk.py -- finite-temperature Gordon-Kim effective potential for the
 nuclear stopping model (Faussurier, Blancard & Gauthier 2013).

@@ -17,3 +17,16 @@ dedx_nuc.dat
 data/*/dedx_nuc.dat
 dedx_nuc.pdf
 data/*/dedx_nuc.pdf
+
+# editor / office lock and temp files
+~$*
+*.swp
+*~
+
+# ad-hoc run-output dirs in the repo root (committed material data lives under data/;
+#  run scratch jobs under tmp/ or add the dir here). Each holds dedx.dat + AA *.den/.pot.
+/ColdAl/
+/WarmH2O/
+/BH_5050/
+/SiO2pstar/
+/MylarWDM/
