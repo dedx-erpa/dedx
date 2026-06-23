@@ -215,6 +215,10 @@ version 3 (GPLv3). You may run, study, share, and modify it under the terms of
 that license; derivative works must also be licensed under the GPL. The full  
 license text is in the LICENSE file.  
 
+dedx-erpa builds on the Flexible Atomic Code (FAC) by M. F. Gu, which is itself  
+released under GPLv3, and adopts the same license for consistency and  
+compatibility.  
+
 Copyright (C) 2026 T. A. Mehlhorn, M. F. Gu, and I. Golovkin.  
 
 This program is free software: you can redistribute it and/or modify it under  
