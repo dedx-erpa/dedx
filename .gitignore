@@ -5,10 +5,13 @@ __pycache__/
 tmp/
 dedx
 
-# gap-correction scratch (reproducible run dirs / sweeps / WDM tables)
+# gap-correction scratch (reproducible run dirs / sweeps / WDM tables / plots)
 data/sweep/
 data/wdm/
 data/*_k[0-9]*/
+data/*/*_k[0-9]*.png
+data/*/wdm_*.png
+data/*/dedx_kgap_sweep.png
 dedx_g
 tw[0-9]*_g[0-9]*.dat
 
