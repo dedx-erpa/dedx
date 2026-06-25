@@ -793,7 +793,10 @@ c
 c .... if the point is right at one of the  nodes
 c
       if(inde1.eq.inde2 .and. indr1.eq.indr2) then
-         vlhfit = 10**vlhtab(inde1,indr1)*sclo + yb + ybloch
+c        cap the (negative) Bloch term at -50% of the loss number so the
+c        stopping can never go negative where the loss number is small.
+         vlhfit = 10**vlhtab(inde1,indr1)*sclo
+         vlhfit = vlhfit + yb + max(ybloch, -0.5d0*vlhfit)
          return
       endif
 
@@ -831,7 +834,7 @@ c         vlhfit = v1 + (v2-v1)/(e2-e1)*(ex-e1)
             vlhfit = 10**vlhfit
          endif
       endif
-      vlhfit = vlhfit + yb + ybloch
+      vlhfit = vlhfit + yb + max(ybloch, -0.5d0*vlhfit)
       return
       end
 
