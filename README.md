@@ -74,8 +74,12 @@ Instructions for running dedx.py:
        3, without LFC, but with strong binary collision correction  
        4, with LFC and strong binary collision corrections.  
        11/12/13/14, same as 1/2/3/4, with the addition of Barkas term.  
-       21/22/23/24, same as 1/2/3/4, with the addition of Barkas and
-       Bloch terms.  
+       21/22/23/24, same as 1/2/3/4, with the addition of the Barkas and
+       Bloch terms.  The Bloch (Z^4) term is the leading nonperturbative
+       projectile-charge correction; it is regularized by a velocity cutoff
+       so that it vanishes at the cold-matter stopping peaks (leaving the cold
+       fits unchanged) and is active at the higher velocities of hot plasmas,
+       and is capped so the stopping cannot go negative.  
        By default, the bound electron correction term is included.  
        if mloss has a third digit of 1, the bound electron correction
        is omitted  
