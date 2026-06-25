@@ -688,6 +688,29 @@ c
       xft = (vf2/((5./3.0)*ve2))**2
       xn = r0/6.748333e24
       xb = (r0-rf)/6.748333e24
+c ... Bloch (Z^4) correction with a velocity-based low-energy cutoff.
+c     Density-independent (LDA): y = Z e^2/(hbar v) = ze/v (a.u.).  The
+c     higher-order-Z_b series diverges near the stopping peak (small loss
+c     number), so a smooth cutoff fcut = exp(-(vcut/v)^4) suppresses it below
+c     vcut (set to preserve the cold-matter fits) and restores it at high
+c     velocity, where it is the leading nonperturbative-Z_b correction.
+c     Active for the 2X modes.
+      ybloch = 0d0
+      if (md .ge. 20 .and. md .lt. 30) then
+         v2b = 2d0*e0*1d6/27.2114d0/1823d0
+         if (v2b .gt. 0d0) then
+            vb = sqrt(v2b)
+            yblo = ze/vb
+            y2b = yblo*yblo
+            sumb = 0d0
+            do nb=1,100
+               sumb = sumb + 1d0/(dble(nb)*(dble(nb)**2+y2b))
+            enddo
+            vcut = 4.0d0
+            fcut = exp(-(vcut/vb)**4)
+            ybloch = -y2b*sumb*fcut
+         endif
+      endif
       if (re .gt. 0) then
          xe = re/6.748333e24      
          ec = xepb*ep
@@ -770,7 +793,7 @@ c
 c .... if the point is right at one of the  nodes
 c
       if(inde1.eq.inde2 .and. indr1.eq.indr2) then
-         vlhfit = 10**vlhtab(inde1,indr1)*sclo + yb
+         vlhfit = 10**vlhtab(inde1,indr1)*sclo + yb + ybloch
          return
       endif
 
@@ -808,7 +831,7 @@ c         vlhfit = v1 + (v2-v1)/(e2-e1)*(ex-e1)
             vlhfit = 10**vlhfit
          endif
       endif
-      vlhfit = vlhfit + yb
+      vlhfit = vlhfit + yb + ybloch
       return
       end
 
