@@ -517,10 +517,13 @@ c ------------------------------------------------
 c 902        format('#'/'#  T = ',1p,e10.4,2x,'rho = ',1p,e10.4,0p,
 c     :              '  zbar = ',f5.2)
             write(14,2115)
- 2115       format('#',3x,'E/AMU (MeV)',12x,'dEdX',11x,'range') 
+ 2115 format('#  E/A[MeV/u]   dEdx[1e-15eVcm2/atom]   Rphys[mg/cm2]')
             do i=1,mep
                dedxt(it,id,i) = dedx(i)
-               write(14,903) ee(i), dedx(i), rage(i)
+c ... range column is written as the PHYSICAL (per-ion) range: the internal
+c     integral is over energy-per-nucleon (ee = E/A), so multiply by the
+c     projectile mass number (qmass, in amu) to get the physical range.
+               write(14,903) ee(i), dedx(i), rage(i)*qmass
             enddo
 c            write(14,904)
  903        format(e15.8,1x,e15.8,1x,e15.8)
@@ -708,7 +711,14 @@ c     Active for the 2X modes.
             enddo
             vcut = 4.0d0
             fcut = exp(-(vcut/vb)**4)
-            ybloch = -y2b*sumb*fcut
+c ... also suppress Bloch in the sub-thermal (v < v_th) regime, where the RPA
+c     loss number is small and the perturbative Z_b (Bloch) expansion over-
+c     corrects.  Key on the PURE thermal velocity vth^2 = 2 te/Hartree (te in
+c     eV): negligible in cold matter (leaves those fits untouched), large in
+c     hot plasmas.  fth ~ 1 for v > v_th (Bethe regime); -> 0 for v << v_th.
+            vth2 = 2d0*te/27.2114d0
+            fth = exp(-(0.4d0*vth2/v2b)**2)
+            ybloch = -y2b*sumb*fcut*fth
          endif
       endif
       if (re .gt. 0) then

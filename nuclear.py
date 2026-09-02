@@ -459,9 +459,11 @@ def write_nuclear(od, zp, te_eV, ti_eV, potlist, species, fout='dedx_nuc.dat',
     # choose the potential used for the total/range column
     chosen = next((p for p in _POT_ORDER if p in potlist), potlist[0])
     total = dedx_e + cols[chosen]
-    # range with the same target-mass convention used by dedx.py
+    # range with the same target-mass convention used by dedx.py; int_range
+    # integrates over energy-per-nucleon, so multiply by the projectile mass
+    # number (m0_amu) to report the PHYSICAL (per-ion) range, matching dedx.f.
     am = sum(fac.ATOMICMASS[int(sp['zt'])] * sp['w'] for sp in species) / wtot
-    rng = rd.int_range(np.array((E, total)), m=am)
+    rng = rd.int_range(np.array((E, total)), m=am) * m0_amu
 
     # projected (practical) range = CSDA range * detour, from the nuclear
     # transport cross section of the chosen potential (number-weighted over
@@ -487,8 +489,10 @@ def write_nuclear(od, zp, te_eV, ti_eV, potlist, species, fout='dedx_nuc.dat',
         f.write('#    Ti = %15.8E\n' % ti_eV)
         f.write('# npot = %s\n' % ','.join(potlist))
         f.write('# total = electronic + %s\n' % chosen)
-        f.write('# range = CSDA pathlength; proj_range = projected (practical) '
-                'range = range*detour\n')
+        f.write('# units -- E/A [MeV/nucleon]; dEdx [1e-15 eV cm^2/atom]; '
+                'range, proj_range PHYSICAL per-ion [mg/cm2]\n')
+        f.write('# range is CSDA pathlength; proj_range is range times detour '
+                '(projected/practical range)\n')
         hdr = '#   E/AMU(MeV)        dEdx_e'
         for p in potlist:
             hdr += '   dEdx_n[%s]' % p
