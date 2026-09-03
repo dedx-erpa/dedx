@@ -55,7 +55,7 @@ Python interface into the env (earlier FAC releases are not compatible).
 ```bash
 ~/miniforge3/envs/fac/bin/python dedx.py \
     --zp=2 --zt=1 --d=171.6 --t=10000 --ti=10000 \
-    --aa=2 --nuc=1 --npot=gk --od=AlphaDT_hotspot
+    --aa=2 --nuc=1 --npot=ionsphere --od=AlphaDT_hotspot
 ```
 
 | flag | meaning |
@@ -66,8 +66,22 @@ Python interface into the env (earlier FAC releases are not compatible).
 | `--ti` | ion temperature (eV); defaults to `--t` if omitted |
 | `--aa=2` | run the average-atom model to (re)generate the density; 1 reuse, 0 read |
 | `--nuc=1` | compute nuclear/ionic stopping -> writes `dedx_nuc.dat` |
-| `--npot=gk` | Gordon-Kim potential (the validated default) |
+| `--npot=ionsphere` | **plasma** ionic channel (screened Coulomb at the ion-sphere scale) |
 | `--od` | output directory |
+
+> **IMPORTANT — potential choice by regime.** `--npot=gk` (Gordon-Kim) is a
+> *cold-matter / warm-dense-matter* potential: it models scattering off a
+> **neutral atom** (bound electrons + exchange-correlation overlap). For a
+> **fully-ionized hot plasma** (the alpha-hotspot case) it is the wrong physics
+> and grossly over-predicts the ionic stopping at high projectile velocity — its
+> forced-zero + xc attractive well near the cell radius `rs` produces a fixed
+> large-impact-parameter scattering feature that does not shrink with velocity,
+> so the ionic term fails to fall as the Rutherford 1/v^2 and comes out
+> ~30-75x too large at the 3.5 MeV alpha birth energy (77% of the total stopping
+> instead of ~15%). Use **`--npot=ionsphere`** for the ionized plasma; reserve
+> `--npot=gk` for cold/WDM targets with bound electrons (where it is validated
+> against NIST/ZBL). `--npot=yukawa` (Debye) over-screens at solid density
+> because the 10 keV Debye length is tens of Bohr, far larger than `rs`.
 
 Outputs in `--od`:
 - `dedx.dat` -- electronic only:
@@ -88,13 +102,21 @@ comparisons.
 - **H-surrogate mass conversion.** The range column is in the *target* (H-surrogate)
   mass. For a real DT areal density multiply by (DT amu/electron)/(H amu/electron) =
   2.515/1.008 ~= 2.5. (`--d=171.6` H matches DT 429 g/cc; `--d=40.3` matches DT 100 g/cc.)
-- **Use the total, not electronic-only, for the alpha range in a hot plasma.** At
-  ~10 keV the alpha is sub-thermal to the electrons but fast relative to the ions, so
-  `dEdx_tot` (electronic + ionic) is what you integrate. Result at DT 100 g/cc, 10 keV:
-  rho_R ~ 0.29 g/cm2 -- the classic Fraley/Atzeni/Lindl value.
+- **Use the total, not electronic-only, for the alpha range in a hot plasma** --
+  but with the **ion-sphere** ionic channel (see the potential-choice box above).
+  At ~10 keV the alpha is sub-thermal to the electrons but fast relative to the ions,
+  so `dEdx_tot` (electronic + ionic) is what you integrate. With `--npot=ionsphere`
+  the 3.5 MeV alpha in DT 429 g/cc, 10 keV gives **rho_R ~ 0.5 g/cm2**, consistent
+  with BPS (0.45) and the Zylstra MD fit (0.46) and somewhat above the classic
+  Fraley/Atzeni value (~0.3). The earlier "rho_R ~ 0.29 = classic" number came from
+  `--npot=gk` and is a **cold-matter-potential artifact** -- do not use it.
 - **Do not rely on `alpha_dt_verify.py` for quantitative numbers.** It carries a
   spurious factor of 0.5 in `S_field` (halves the stopping -> ranges ~2x too long). It
   is a rough analytic cross-check only; use `dedx.py --nuc` for the real answer.
-- **Faussurier ionic caveat.** The finite-Ti ionic term over-predicts the ionic
-  stopping at high projectile velocity (converges to BPS/LPZ near the ion thermal
-  velocity); it does not bias the low-velocity-weighted integrated range.
+- **Gordon-Kim (`--npot=gk`) high-velocity artifact.** In a hot plasma the GK ionic
+  stopping does not recover the 1/v^2 Rutherford limit (its S(Ec) falls as ~1/Ec
+  instead of 1/Ec^2, because ~99% of the impact-parameter integral comes from the
+  fixed attractive-well feature at `p ~ rs`, not from the velocity-shrinking
+  close-collision core). Diagnostic: `dEdx_n[gk] * Etot` should be ~flat at high E
+  (Rutherford) but instead climbs ~30x. Correct with `--npot=ionsphere`, whose
+  `S(Ec)*Ec^2` is flat up to the physical Coulomb log.
