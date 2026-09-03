@@ -338,6 +338,36 @@ def nuclear_stopping(E_grid_MeVamu, zp, zt, m0_amu, mt_amu, rs, te_eV, ti_eV,
         ec_min, ec_max = ecs.min(), ecs.max()
     Sfunc = make_S_interp(U, ec_min, ec_max)
 
+    # ---- guard: Gordon-Kim in the fully-ionized dense-plasma artifact regime ----
+    # The Gordon-Kim potential is a neutral-atom (bound-electron) construct valid
+    # for cold and warm dense matter.  For a (nearly) fully-ionized plasma the ions
+    # are bare, and GK's exchange-correlation overlap produces a spurious attractive
+    # well near the cell radius that supplies almost all of the impact-parameter
+    # integral and does not shrink with velocity, so the ionic stopping fails to
+    # fall as the Rutherford 1/v^2 and is grossly over-predicted at high projectile
+    # velocity.  This is harmless in cold matter (where the ionic term is negligible
+    # next to the electronic stopping and GK is the correct model), so we only warn
+    # when the target is substantially ionized AND GK actually departs from the
+    # ion-sphere (screened-Coulomb) high-velocity limit that is correct there.
+    if potential.lower() in ('gk', 'gordonkim', 'gordon-kim') and zbar > 0.8 * zt:
+        try:
+            S_is = make_S_interp(IonSphere(z0p, zbar, ne), ec_min, ec_max)
+            denom = S_is(ec_max)
+            ratio = Sfunc(ec_max) / denom if denom > 0 else 0.0
+            if ratio > 3.0:
+                import warnings
+                warnings.warn(
+                    "Gordon-Kim (--npot=gk) ionic stopping is in its neutral-atom "
+                    "artifact regime for this fully-ionized dense plasma: it exceeds "
+                    "the ion-sphere screened-Coulomb value by %.0fx at the top of the "
+                    "energy grid and does not recover the Rutherford 1/v^2 limit, so "
+                    "it over-predicts the ionic stopping (and shortens the range). Use "
+                    "--npot=ionsphere for a fully-ionized plasma; reserve --npot=gk "
+                    "for cold / warm dense matter with bound electrons." % ratio,
+                    RuntimeWarning, stacklevel=2)
+        except Exception:
+            pass  # a diagnostic guard must never break the calculation
+
     out = np.zeros_like(E)
     for i in range(len(E)):
         if ti_eV > 0.0:
