@@ -70,9 +70,15 @@ Python interface into the env (earlier FAC releases are not compatible).
 | `--od` | output directory |
 
 Outputs in `--od`:
-- `dedx.dat` -- electronic only: `E/A[MeV/u]  dEdx[1e-15 eVcm2/atom]  Rphys[mg/cm2]`
-- `dedx_nuc.dat` -- with the ion channel: columns
-  `E/A(MeV)  dEdx_e  dEdx_n[gk]  dEdx_tot  range  proj_range  detour`
+- `dedx.dat` -- electronic only:
+  `E/A[MeV/u]  dEdx[1e-15eVcm2/atom]  Rphys[mg/cm2]  Etot[MeV]`
+- `dedx_nuc.dat` -- with the ion channel:
+  `E/A(MeV)  dEdx_e  dEdx_n[gk]  dEdx_tot  range  proj_range  detour  Etot[MeV]`
+
+The last column, `Etot[MeV]`, is the total projectile kinetic energy (= E/A x the
+projectile mass number), so the file gives R(E) directly in physical units (plot
+the physical range vs `Etot`, both real). `E/A` is retained for the velocity-based
+comparisons.
 
 ## Important notes (post-correction)
 

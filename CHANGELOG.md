@@ -18,6 +18,11 @@ follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   bit-for-bit unchanged; the fast-projectile Bloch effect (e.g. Cayzac, -7%) is
   preserved; the 10 keV alpha range drops 1.247 -> 0.769 g/cm2 (bare-RPA level).
 
+### Added
+- Output files gain a final **Etot[MeV]** column (total projectile kinetic energy
+  = E/A x mass number), so dedx.dat / dedx_nuc.dat give R(E) directly in physical
+  units. Appended at the end, so existing 3-column readers are unaffected.
+
 ### Changed
 - **Range output is now the PHYSICAL (per-ion) range, not per-nucleon.** The
   internal range integral is over energy-per-nucleon (`E/A`), so the range was a

@@ -496,14 +496,14 @@ def write_nuclear(od, zp, te_eV, ti_eV, potlist, species, fout='dedx_nuc.dat',
         hdr = '#   E/AMU(MeV)        dEdx_e'
         for p in potlist:
             hdr += '   dEdx_n[%s]' % p
-        hdr += '     dEdx_tot         range     proj_range        detour\n'
+        hdr += '     dEdx_tot         range     proj_range        detour        Etot[MeV]\n'
         f.write(hdr)
         for i in range(len(E)):
             f.write('%15.8E %13.6E' % (E[i], dedx_e[i]))
             for p in potlist:
                 f.write(' %13.6E' % cols[p][i])
-            f.write(' %13.6E %13.6E %13.6E %13.6E\n'
-                    % (total[i], rng[i], proj[i], detour[i]))
+            f.write(' %13.6E %13.6E %13.6E %13.6E %13.6E\n'
+                    % (total[i], rng[i], proj[i], detour[i], E[i] * m0_amu))
     return path
 
 

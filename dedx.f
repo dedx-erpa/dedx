@@ -517,16 +517,19 @@ c ------------------------------------------------
 c 902        format('#'/'#  T = ',1p,e10.4,2x,'rho = ',1p,e10.4,0p,
 c     :              '  zbar = ',f5.2)
             write(14,2115)
- 2115 format('#  E/A[MeV/u]   dEdx[1e-15eVcm2/atom]   Rphys[mg/cm2]')
+ 2115 format('#  E/A[MeV/u]  dEdx[1e-15eVcm2/atom]  Rphys[mg/cm2]',
+     +       '  Etot[MeV]')
             do i=1,mep
                dedxt(it,id,i) = dedx(i)
 c ... range column is written as the PHYSICAL (per-ion) range: the internal
 c     integral is over energy-per-nucleon (ee = E/A), so multiply by the
 c     projectile mass number (qmass, in amu) to get the physical range.
-               write(14,903) ee(i), dedx(i), rage(i)*qmass
+c     Etot = (E/A)*qmass is the total projectile kinetic energy (MeV),
+c     appended so the file gives R(E) directly in physical units.
+               write(14,903) ee(i), dedx(i), rage(i)*qmass, ee(i)*qmass
             enddo
 c            write(14,904)
- 903        format(e15.8,1x,e15.8,1x,e15.8)
+ 903        format(e15.8,1x,e15.8,1x,e15.8,1x,e15.8)
 c 904        format('A')
 
             if (mout .gt. 0) then
