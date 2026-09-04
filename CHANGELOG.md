@@ -17,11 +17,36 @@ follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   for v > v_th and ->0 for v << v_th. Verified: cold C/Al/Ag/Au stopping is
   bit-for-bit unchanged; the fast-projectile Bloch effect (e.g. Cayzac, -7%) is
   preserved; the 10 keV alpha range drops 1.247 -> 0.769 g/cm2 (bare-RPA level).
+- **Nuclear/ionic stopping in a fully-ionized plasma no longer over-predicts at
+  high projectile velocity.** The Gordon-Kim neutral-atom potential (a cold/WDM
+  construct) develops a spurious attractive well near the cell radius that breaks
+  the Rutherford 1/v^2 limit for a bare-ion plasma, over-predicting the ionic term
+  ~30-75x at the 3.5 MeV alpha birth energy. Fully-ionized-plasma runs now use the
+  ion-sphere screened-Coulomb potential; the 'total'/range column selects it
+  automatically for ionized targets, and a RuntimeWarning fires if `--npot=gk` is
+  used on an ionized target. Corrected 3.5 MeV alpha range in DT 100 g/cc, 10 keV
+  is consistent with BPS (0.45) and the Zylstra MD fit (0.46).
+- **alpha_dt_verify.py: removed a spurious factor of 1/2** in the Chandrasekhar
+  friction (`S_field`) that halved the stopping and doubled the range (the 3.5 MeV
+  alpha in DT went ~0.89 -> ~0.44 g/cm2, now matching BPS).
 
 ### Added
 - Output files gain a final **Etot[MeV]** column (total projectile kinetic energy
   = E/A x mass number), so dedx.dat / dedx_nuc.dat give R(E) directly in physical
   units. Appended at the end, so existing 3-column readers are unaffected.
+- **`--imass` / `--iwt`**: supply the true ionic-channel isotope masses (e.g.
+  D=2.014, T=3.016) for the elastic ion-ion term while the electronic AA, ne, and
+  range normalization stay on the electron-density-matched surrogate. The ionic
+  term ~ 1/m_target, so a Z=1 hydrogen surrogate over-weights a DT ion channel by
+  ~2.2x; `--imass` corrects it (3.5 MeV alpha in DT 100 g/cc: rho_R 0.43 -> 0.51).
+- **`--npot=ionsphere`** documented as the correct potential for fully-ionized
+  plasmas, with the regime-aware total-column selection and the misuse guard above.
+- **examples/**: runnable V&V cases with expected outputs -- cold proton in Al vs
+  PSTAR, alpha in DT plasma (ion-sphere + isotope-mass workflow), and a
+  potential-choice / Rutherford-limit diagnostic.
+- **validation/grabowski_compare.py**: a strong-coupling (Zwicknagel) stopping
+  comparison framework vs Grabowski (2013) classical MD (held for future).
+- **docs/VV_checklist.md**: a validation / gotchas checklist for new users.
 
 ### Changed
 - **Range output is now the PHYSICAL (per-ion) range, not per-nucleon.** The

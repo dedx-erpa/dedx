@@ -59,7 +59,10 @@ def S_field(E_eV, zp, mp, zf, mf, nf_au, Tf_eV, ne_au, Te_eV):
     vthf = np.sqrt(2.0 * (Tf_eV / HARTREE_EV) / mfa)
     x = v / vthf
     lnL = coulomb_lnL(zp, zf, mp, mf, v, ne_au, Te_eV, Tf_eV)
-    return 0.5 * 4.0 * np.pi * zp**2 * zf**2 * nf_au * lnL / (mfa * v**2) \
+    # Chandrasekhar friction: 4 pi zp^2 zf^2 nf lnL / (mf v^2) * [erf(x) - (1+mf/mp) x erf'(x)].
+    # (A spurious 1/2 here previously halved the stopping and doubled the range --
+    #  e.g. the 3.5 MeV alpha in DT came out ~0.89 instead of ~0.44 g/cm^2, matching BPS.)
+    return 4.0 * np.pi * zp**2 * zf**2 * nf_au * lnL / (mfa * v**2) \
         * (erf(x) - (1.0 + mfa / mpa) * x * ERFP(x))
 
 

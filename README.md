@@ -98,6 +98,14 @@ python dedx.py --zc='1,6,8' --wc='4,5,2' --aa=2 --d=1.35 --t=10.0 --od=MylarWDM
 3. This is equivalent to example 1.  
 python dedx.py --fc=Al --aa=2 --d=2.7 --t=0.025 --od=ColdAl  
 
+4. Alpha (3.5 MeV He-4) in a DT hot spot, using the Z=1 hydrogen surrogate at the  
+   DT electron density (40.3 g/cc H = DT 100 g/cc), Te=Ti=10 keV, with the  
+   ion-sphere ionic potential and the real D,T ion masses:  
+python dedx.py --zp=2 --zt=1 --d=40.3 --t=10000 --ti=10000 --aa=2 --nuc=1 \  
+    --npot=ionsphere --imass=2.014,3.016 --iwt=1,1 --od=AlphaDT_plasma  
+   Multiply the range column by 2.515/1.008 for the real DT areal density  
+   (rho_R ~ 0.51 g/cm2, consistent with BPS and the Zylstra MD fit). See examples/.  
+
 4. This is equivalent to example 2.  
 python dedx.py --fc=H4C5O2 --aa=2 --d=1.35 --t=10.0 --od=MylarWDM  
 
@@ -131,14 +139,30 @@ equations and validation.
 Enable it by adding options to dedx.py:  
 --nuc=  1 to also compute nuclear stopping (default 0).  
 --npot= comma-separated pair potentials, subset of gk,ionsphere,yukawa  
-        (default gk). gk (full Gordon-Kim) is the recommended model: it builds  
-        the projectile-target interaction from the average-atom bound+free  
-        electron density with the full electron-gas energy (electrostatic +  
-        Thomas-Fermi kinetic + Dirac exchange + PW92 correlation, with the  
-        Faussurier/Stein volume-conservation scaling), and reproduces the cold  
-        NIST nuclear stopping. The analytic ionsphere/yukawa screen with free  
-        electrons only and fall below NIST (Faussurier Fig. 1). The 'total'  
-        column uses gk if present.  
+        (default gk). CHOOSE BY REGIME:  
+        * gk (Gordon-Kim) -- for COLD and WARM DENSE MATTER (targets with bound  
+          electrons). Builds the projectile-target interaction from the average-  
+          atom bound+free electron density with the full electron-gas energy  
+          (electrostatic + Thomas-Fermi kinetic + Dirac exchange + PW92  
+          correlation, Faussurier/Stein volume scaling); reproduces the cold NIST  
+          nuclear stopping. Do NOT use for a fully-ionized plasma: its bound-  
+          electron overlap adds a fixed large-impact-parameter feature that breaks  
+          the Rutherford 1/v^2 high-velocity limit and over-predicts the ionic  
+          stopping (the code emits a RuntimeWarning if you do this).  
+        * ionsphere -- for a FULLY-IONIZED PLASMA (bare ions screened by free  
+          electrons). Recovers the correct 1/v^2 high-velocity limit; use this  
+          for hot-plasma alpha/ion stopping.  
+        * yukawa -- Debye screening; over-screens at solid density (Debye length  
+          >> ion-sphere radius), so prefer ionsphere for dense plasmas.  
+        The 'total'/range column is ionization-aware: it uses ionsphere for a  
+        (nearly) fully-ionized target and gk otherwise.  
+--imass= ionic-channel target isotope mass(es) in amu, comma-separated, with  
+--iwt=   matching number weights (e.g. --imass=2.014,3.016 --iwt=1,1 for  
+        equimolar D,T). The elastic ion-ion term goes as 1/m_target, so a Z=1  
+        electron-density-matched surrogate (proton mass 1.008) over-weights a DT  
+        ion channel by ~2.2x. --imass overrides the ionic-channel mass ONLY; the  
+        electronic AA, ne, and range normalization stay on the surrogate.  
+        (Default: the Z-keyed atomic mass.)  
 --ti=   ion temperature in eV (default = Te). The finite-Ti Maxwellian average  
         (Eq. 6) captures the thermal motion of the target ions. Below a threshold  
         E* the projectile is slower than the thermal ions and the net ion-ion  
