@@ -469,7 +469,12 @@ def write_nuclear(od, zp, te_eV, ti_eV, potlist, species, fout='dedx_nuc.dat',
     for sp in species:
         h = rd.rdedx(sp['sod'], header='')
         zt = int(sp['zt'])
-        mt_amu = fac.ATOMICMASS[zt]
+        # ionic-channel target mass: 'mt' overrides the Z-keyed atomic mass so the
+        # elastic ion-ion term can use the true isotope mass (e.g. D=2.014, T=3.016)
+        # while the electronic AA, ne, and range normalization stay on the Z-keyed
+        # electron-density-matched surrogate.  The ionic stopping ~ 1/m_target, so
+        # a hydrogen surrogate (m=1.008) over-weights a DT ion channel by ~2.2x.
+        mt_amu = float(sp.get('mt', fac.ATOMICMASS[zt]))
         for p in potlist:
             eps = nuclear_stopping(E, zp, zt, m0_amu, mt_amu, float(h['rs']),
                                    te_eV, ti_eV, float(h['zbar']),
@@ -513,7 +518,8 @@ def write_nuclear(od, zp, te_eV, ti_eV, potlist, species, fout='dedx_nuc.dat',
     for sp in species:
         h = rd.rdedx(sp['sod'], header='')
         st = transport_xsec(E, zp, int(sp['zt']), m0_amu,
-                            fac.ATOMICMASS[int(sp['zt'])], float(h['rs']),
+                            float(sp.get('mt', fac.ATOMICMASS[int(sp['zt'])])),
+                            float(h['rs']),
                             te_eV, float(h['zbar']), potential=chosen,
                             od=sp['sod'], gk_muffin=gk_muffin)
         sigtr += np.atleast_1d(st) * sp['w']

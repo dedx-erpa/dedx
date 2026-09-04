@@ -144,6 +144,14 @@ if __name__ == '__main__':
                       '(default gk = full Gordon-Kim, the recommended model)')
     p.add_option('--ti', dest='ti', type='float', default=-1.0,
                  help='ion temperature in eV for nuclear stopping (default: =Te)')
+    p.add_option('--imass', dest='imass', type='string', default='',
+                 help='ionic-channel target isotope mass(es) in amu, comma-separated '
+                      '(e.g. 2.014,3.016 for D,T); overrides the Z-keyed atomic mass '
+                      'in the ELASTIC ion-ion term only, so a Z=1 electron-density '
+                      'surrogate can carry the true DT ion masses. Electronic AA, ne, '
+                      'and range normalization are unchanged.')
+    p.add_option('--iwt', dest='iwt', type='string', default='',
+                 help='number weights for --imass species (default: equal)')
     p.add_option('--gkmuffin', dest='gkmuffin', type='int', default=1,
                  help='GK target density beyond the cell: 1=muffin-tin interstitial '
                       'sea (eRPA-consistent, default), 0=isolated neutral atom')
@@ -323,6 +331,16 @@ if __name__ == '__main__':
                            for i in range(len(zc))]
             else:
                 species = [{'zt': opts.zt, 'w': 1.0, 'sod': opts.od}]
+            # optional ionic-channel isotope-mass override (e.g. DT: 2.014,3.016)
+            if opts.imass.strip():
+                imass = [float(s) for s in opts.imass.split(',') if s.strip()]
+                if opts.iwt.strip():
+                    iwt = [float(s) for s in opts.iwt.split(',') if s.strip()]
+                else:
+                    iwt = [1.0] * len(imass)
+                base = species[0]   # single Z-keyed surrogate species
+                species = [{'zt': base['zt'], 'w': iwt[i], 'sod': base['sod'],
+                            'mt': imass[i]} for i in range(len(imass))]
             if opts.v > 0:
                 print('computing nuclear stopping (%s) ...'%opts.npot)
             fn = nuclear.write_nuclear(opts.od, opts.zp, opts.t, ti,
