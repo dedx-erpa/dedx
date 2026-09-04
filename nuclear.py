@@ -386,7 +386,7 @@ def nuclear_stopping(E_grid_MeVamu, zp, zt, m0_amu, mt_amu, rs, te_eV, ti_eV,
 # Janni / PSTAR / IAEA tables quote.
 # ---------------------------------------------------------------------------
 def transport_xsec(E_grid_MeVamu, zp, zt, m0_amu, mt_amu, rs, te_eV,
-                   zbar, potential='gk', od=None, gk_muffin=True):
+                   zbar, potential='ionsphere', od=None, gk_muffin=True):
     """Nuclear momentum-transfer (transport) cross section sigma_tr [cm^2].
 
     sigma_tr = int (1-cos theta) dsigma = 4 pi S(Ec), with the same impact-
@@ -437,7 +437,8 @@ def detour_factor(E, S_areal, sigma_tr, A_eff):
 # ---------------------------------------------------------------------------
 # output: augment a finished dedx.dat with nuclear columns -> dedx_nuc.dat
 # ---------------------------------------------------------------------------
-_POT_ORDER = ['gk', 'yukawa', 'ionsphere']     # preference for the "total" column
+_POT_ORDER = ['gk', 'yukawa', 'ionsphere']     # preference for cold / warm dense matter
+_POT_ORDER_PLASMA = ['ionsphere', 'yukawa', 'gk']  # preference for a fully-ionized plasma
 
 
 def write_nuclear(od, zp, te_eV, ti_eV, potlist, species, fout='dedx_nuc.dat',
@@ -486,8 +487,17 @@ def write_nuclear(od, zp, te_eV, ti_eV, potlist, species, fout='dedx_nuc.dat',
         # zero-crossing) and only floored here for the stopping-power table.
         cols[p] = np.maximum(cols[p], 0.0)
 
-    # choose the potential used for the total/range column
-    chosen = next((p for p in _POT_ORDER if p in potlist), potlist[0])
+    # choose the potential used for the total/range/transport columns.  This is
+    # ionization-aware: for a (nearly) fully-ionized plasma the neutral-atom
+    # Gordon-Kim potential is inappropriate (its bound-electron overlap breaks the
+    # high-velocity Rutherford 1/v^2 limit; see the guard in nuclear_stopping), so
+    # the ion-sphere screened Coulomb is preferred; for cold / warm dense matter
+    # (bound electrons) Gordon-Kim is preferred.  A single-potential run always
+    # uses that potential (the guard warns if it is GK in a plasma).
+    h0 = rd.rdedx(species[0]['sod'], header='')
+    ionized = float(h0['zbar']) > 0.8 * float(species[0]['zt'])
+    order = _POT_ORDER_PLASMA if ionized else _POT_ORDER
+    chosen = next((p for p in order if p in potlist), potlist[0])
     total = dedx_e + cols[chosen]
     # range with the same target-mass convention used by dedx.py; int_range
     # integrates over energy-per-nucleon, so multiply by the projectile mass
