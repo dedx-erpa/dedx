@@ -46,3 +46,10 @@ data/*/dedx_nuc.pdf
 /Deg_*/
 /Vtot*/
 /SmokeAl/
+
+# internal / working material — kept local, not on the public repo
+/STUDIO_SETUP.md
+/docs/zeff_design.md
+/validation/
+/data/refs/grabowski_md_README.md
+/data/refs/grabowski_md_*.csv

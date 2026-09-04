@@ -8,11 +8,10 @@ paper (POP26-AR-01190).
 ## Running it
 - **Use the conda env that has `pfac`**, calling its Python by full path — `conda
   activate` does not work in non-interactive shells (e.g.
-  `<conda-base>/envs/<env>/bin/python dedx.py ...`; `STUDIO_SETUP.md` shows how to
-  locate it).
+  `<conda-base>/envs/<env>/bin/python dedx.py ...`; find it with `conda env list`).
 - **Rebuild the Fortran binary** after editing `dedx.f`: `make` (the committed binary
   is machine-specific and will not run elsewhere).
-- Full setup notes: `STUDIO_SETUP.md`. Runnable V&V: `examples/`. Gotchas:
+- Setup and options: `README.md`. Runnable V&V: `examples/`. Gotchas:
   `docs/VV_checklist.md`.
 
 ## Key physics rule — ionic pair potential by regime (don't get this wrong)
@@ -25,19 +24,19 @@ paper (POP26-AR-01190).
   --iwt=1,1`.
 
 ## Current focus
-**Z_eff — effective projectile charge overhaul.** See `docs/zeff_design.md`. Aim: one
-continuous, *pluggable* Z_eff from cold/WDM to plasma, consistent across channels.
+**Z_eff — effective projectile charge overhaul.** Aim: one continuous, *pluggable*
+Z_eff from cold/WDM to plasma, consistent across channels.
 Model choice is **open** — candidates to survey before hardwiring: Brandt–Kitagawa
 (cold), Peter & Meyer-ter-Vehn and Barriga-Carrasco (plasma), Ziegler (legacy).
 Today: electronic uses a Ziegler fit (Z>2); ionic uses full Z.
 
 ## Before the next paper
-**Complete the strong-collision (Zwicknagel) V&V.** `validation/grabowski_compare.py`
-is a framework to compare the correction against Grabowski (2013) classical MD but
-still needs digitized MD points (see its docstring). The current PoP paper only
+**Complete the strong-collision (Zwicknagel) V&V.** The correction still needs
+validating against Grabowski (2013) classical MD (an internal comparison framework,
+kept outside this repo, needs digitized MD points). The current PoP paper only
 *scopes* the correction (inactive at Γ≪1); any new paper that leans on the
 strong-coupling regime should show it validated against MD first.
 
 ## Repo
 CI (`.github/workflows/ci.yml`) runs pytest + `ruff check dedx_erpa tests` — keep
-both green. Maintainer remotes and push workflow: see `STUDIO_SETUP.md`.
+both green.

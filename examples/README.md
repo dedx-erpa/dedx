@@ -2,7 +2,7 @@
 
 Three runnable cases that anchor the model in the two regimes it spans and show
 the one choice new users most often get wrong (the ionic pair potential).  Run
-them with the FAC-env python that has `pfac` (see `../STUDIO_SETUP.md`); the
+them with the conda env that has `pfac` (see the top-level `README.md`); the
 diagnostic in #3 needs no FAC pipeline and runs in seconds.
 
 ## 1. Cold-matter anchor — proton in solid Al vs NIST PSTAR
@@ -46,9 +46,3 @@ climb ~30× — the neutral-atom artifact the guard warns about.
 See [`../docs/VV_checklist.md`](../docs/VV_checklist.md) for the full list of
 diagnostics and gotchas (potential-by-regime, the H-surrogate ×2.515 conversion,
 `--imass`, the `dEdx_n×Etot` flatness test, and what *not* to trust).
-
-## Strong-coupling (future)
-
-`../validation/grabowski_compare.py` is a framework to compare the strong-collision
-(Zwicknagel) correction against Grabowski (2013) classical MD; it needs digitized
-MD points to complete (see its docstring).  Held for future validation.

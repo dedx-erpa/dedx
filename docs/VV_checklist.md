@@ -59,7 +59,7 @@ the surrogate.
   for sub-thermal projectiles (v < v_th) so it does not over-correct a slow alpha.
 - **Strong-collision (Zwicknagel) + local-field** activate only at strong coupling
   (Γ ≳ 1); they are inactive in weakly-coupled plasmas (e.g. Cayzac, Γ ≈ 0.01),
-  where the model reduces to bare RPA. See `validation/grabowski_compare.py`.
+  where the model reduces to bare RPA.
 - **Barkas** is suppressed at low projectile energy and negligible in hot plasma.
 
 ## 7. What NOT to trust quantitatively

@@ -44,8 +44,6 @@ follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - **examples/**: runnable V&V cases with expected outputs -- cold proton in Al vs
   PSTAR, alpha in DT plasma (ion-sphere + isotope-mass workflow), and a
   potential-choice / Rutherford-limit diagnostic.
-- **validation/grabowski_compare.py**: a strong-coupling (Zwicknagel) stopping
-  comparison framework vs Grabowski (2013) classical MD (held for future).
 - **docs/VV_checklist.md**: a validation / gotchas checklist for new users.
 
 ### Changed
