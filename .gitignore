@@ -5,6 +5,13 @@ __pycache__/
 tmp/
 dedx
 
+# Python packaging / test artifacts
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+.ruff_cache/
+
 # gap-correction scratch (reproducible run dirs / sweeps / WDM tables / plots)
 data/sweep/
 data/wdm/
@@ -20,6 +27,8 @@ dedx_nuc.dat
 data/*/dedx_nuc.dat
 dedx_nuc.pdf
 data/*/dedx_nuc.pdf
+# ...but keep the small committed test fixture (the bare rule above is for run dirs)
+!tests/data/sample/dedx_nuc.dat
 
 # editor / office lock and temp files
 ~$*
@@ -33,3 +42,7 @@ data/*/dedx_nuc.pdf
 /BH_5050/
 /SiO2pstar/
 /MylarWDM/
+/AlphaDT_*/
+/Deg_*/
+/Vtot*/
+/SmokeAl/
