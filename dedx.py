@@ -36,7 +36,15 @@ def prep_inp(opts, od, zt):
     with open('%s/dedx.inp'%od, 'w') as f:
         f.write('&dedxinp\n\n')
         f.write('  zzp = %g\n'%opts.zp)
-        f.write('qmass = %9.3e\n'%fac.ATOMICMASS[int(opts.zp)])
+        zpi = int(opts.zp)
+        if zpi < 0:
+           # Negative projectile (antiproton). ATOMICMASS is indexed by Z, so a
+           # negative index silently wraps to the heaviest tabulated element.
+           # The antiproton mass equals the proton mass by CPT.
+           qmass = 1.00728 if zpi == -1 else fac.ATOMICMASS[abs(zpi)]
+        else:
+          qmass = fac.ATOMICMASS[zpi]
+        f.write('qmass = %9.3e\n'%qmass)
         f.write('  ztg = %d\n'%zt)
         f.write('amass = %9.3e\n'%fac.ATOMICMASS[zt])
         f.write('  mep = %d\n'%opts.mep)
