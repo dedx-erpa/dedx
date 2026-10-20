@@ -1,0 +1,74 @@
+# CITATION.cff — how to cite the dedx-erpa/dedx software.
+# Place this file in the repository ROOT; GitHub then shows a
+# "Cite this repository" button generated from it.
+#
+# TODO before committing:
+#   * fill in <date-released> (date of the tagged release)
+#   * after the first Zenodo release, paste the CONCEPT DOI and the v1.0.0 VERSION DOI
+#   * verify full given names (CFF prefers full first names over initials)
+#   * confirm author order and the license (should match the repo LICENSE file)
+
+cff-version: 1.2.0
+message: >-
+  If you use this software, please cite the accompanying paper (see
+  preferred-citation below) and, for the exact code, the version archived on Zenodo.
+title: "dedx-erpa/dedx: An enhanced RPA-LDA model for ion stopping power (e-RPA/LDA)"
+abstract: >-
+  Open-source code implementing the enhanced RPA/LDA electronic stopping-power
+  model over average-atom (Flexible Atomic Code) electron densities, together with
+  nuclear/ionic stopping and a cold-insulator band-gap correction.
+type: software
+authors:
+  - family-names: Mehlhorn
+    given-names: "Thomas A."          # TODO: confirm full given name
+    orcid: "https://orcid.org/0000-0002-4985-0386"
+    affiliation: "Mehlhorn Engineering Consulting Services, Beaverton, Oregon, USA"
+  - family-names: Gu
+    given-names: "Ming Feng"
+    orcid: "https://orcid.org/0000-0001-9136-8449"
+    affiliation: "Prism Computational Sciences, Inc., Madison, Wisconsin, USA"
+  - family-names: Golovkin
+    given-names: Igor
+    orcid: "https://orcid.org/0000-0003-2350-8168"
+    affiliation: "Prism Computational Sciences, Inc., Madison, Wisconsin, USA"
+version: "1.0.0"
+date-released: "2026-__-__"           # TODO: release date (YYYY-MM-DD)
+license: GPL-3.0-or-later             # TODO: confirm against repo LICENSE
+repository-code: "https://github.com/dedx-erpa/dedx"
+url: "https://github.com/dedx-erpa/dedx"
+keywords:
+  - stopping power
+  - random phase approximation
+  - local density approximation
+  - average-atom model
+  - Flexible Atomic Code
+  - warm dense matter
+  - inertial fusion
+  - high-energy-density physics
+# Concept (all-versions) DOI — always resolves to the LATEST release:
+doi: "10.5281/zenodo.XXXXXXX"         # TODO: Zenodo concept DOI
+identifiers:
+  - type: doi
+    value: "10.5281/zenodo.XXXXXXX"   # TODO: concept (all-versions) DOI
+    description: "Concept DOI — resolves to the latest release"
+  - type: doi
+    value: "10.5281/zenodo.YYYYYYY"   # TODO: version DOI for v1.0.0
+    description: "Version DOI for v1.0.0 — the exact code cited in the paper"
+preferred-citation:
+  type: article
+  title: >-
+    An Enhanced RPA-LDA Model for Ion Stopping Power from Cold Matter to
+    High-Energy Density Plasmas: A Unified, Open-Source Framework
+  authors:
+    - family-names: Mehlhorn
+      given-names: "Thomas A."
+    - family-names: Gu
+      given-names: "Ming Feng"
+    - family-names: Golovkin
+      given-names: Igor
+  journal: "Physics of Plasmas"
+  publisher:
+    name: "AIP Publishing"
+  year: 2026
+  volume: 33
+  doi: "10.1063/5.0350289"
