@@ -33,7 +33,7 @@ authors:
     affiliation: "Prism Computational Sciences, Inc., Madison, Wisconsin, USA"
 version: "1.0.0"
 date-released: "2026-__-__"           # TODO: release date (YYYY-MM-DD)
-license: GPL-3.0-or-later             # TODO: confirm against repo LICENSE
+license: GPL-3.0-only             # TODO: confirm against repo LICENSE
 repository-code: "https://github.com/dedx-erpa/dedx"
 url: "https://github.com/dedx-erpa/dedx"
 keywords:
