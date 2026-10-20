@@ -1,0 +1,41 @@
+{
+  "upload_type": "software",
+  "title": "dedx-erpa/dedx: An enhanced RPA-LDA model for ion stopping power (e-RPA/LDA)",
+  "description": "dedx-erpa/dedx is an open-source implementation of the enhanced random-phase-approximation / local-density-approximation (e-RPA/LDA) model for the electronic stopping power of ions, valid from cold solids through warm dense matter to high-energy-density plasmas. Electronic stopping is computed from the finite-temperature RPA dielectric response in the local-density approximation over average-atom electron densities obtained with the Flexible Atomic Code (FAC), augmented by strong-collision, static local-field, electron-binding, and higher-order Barkas and Bloch corrections. The package also provides nuclear/ionic (elastic ion-ion) stopping and a cold-insulator band-gap correction, and outputs stopping powers and ranges for elements and compounds. This release accompanies T. A. Mehlhorn, M. F. Gu, and I. Golovkin, 'An Enhanced RPA-LDA Model for Ion Stopping Power from Cold Matter to High-Energy Density Plasmas: A Unified, Open-Source Framework,' Physics of Plasmas 33 (2026), doi:10.1063/5.0350289. Distributed under the GNU General Public License v3.",
+  "creators": [
+    {
+      "name": "Mehlhorn, Thomas A.",
+      "affiliation": "Mehlhorn Engineering Consulting Services, Beaverton, Oregon, USA",
+      "orcid": "0000-0002-4985-0386"
+    },
+    {
+      "name": "Gu, Ming Feng",
+      "affiliation": "Prism Computational Sciences, Inc., Madison, Wisconsin, USA",
+      "orcid": "0000-0001-9136-8449"
+    },
+    {
+      "name": "Golovkin, Igor",
+      "affiliation": "Prism Computational Sciences, Inc., Madison, Wisconsin, USA",
+      "orcid": "0000-0003-2350-8168"
+    }
+  ],
+  "license": "GPL-3.0",
+  "keywords": [
+    "stopping power",
+    "random phase approximation",
+    "local density approximation",
+    "average-atom model",
+    "Flexible Atomic Code",
+    "warm dense matter",
+    "inertial fusion",
+    "high-energy-density physics"
+  ],
+  "related_identifiers": [
+    {
+      "identifier": "10.1063/5.0350289",
+      "relation": "isSupplementTo",
+      "resource_type": "publication-article",
+      "scheme": "doi"
+    }
+  ]
+}
