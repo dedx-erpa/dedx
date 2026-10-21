@@ -1,5 +1,6 @@
 dedx-erpa  
 A package for ion beam stopping power calculations for plasma targets.
+[![DOI](https://zenodo.org/badge/551664720.svg)](https://doi.org/10.5281/zenodo.23519877)
 
 Contents:  
 1. dief.py, for computing RPA dielectric functions, and stopping powers of  
@@ -228,13 +229,27 @@ Note: the analytic Yukawa potential overestimates the nuclear stopping at high
 projectile energy (its long screened-attractive tail); nuclear stopping there  
 is negligible vs electronic, and gk is the recommended potential.  
 
-References and citation  
+## References and citation
 
-The electronic stopping is the eRPA model of P. Wang, T. A. Mehlhorn and  
-J. J. MacFarlane, Phys. Plasmas 5, 2977 (1998). The cold-insulator band-gap  
-correction and the nuclear/ion stopping (Faussurier, Blancard & Gauthier,  
-Phys. Plasmas 20, 012705, 2013) are described in nuclear_model_notes.md and the  
-manuscript drafts under docs/. Please cite those works when using this package.  
+If you use **dedx-erpa/dedx**, please cite the paper and the software release:
+
+- **Paper:** T. A. Mehlhorn, M. F. Gu, and I. Golovkin, "An Enhanced RPA-LDA Model
+  for Ion Stopping Power from Cold Matter to High-Energy Density Plasmas: A Unified,
+  Open-Source Framework," *Phys. Plasmas* **33**, XXXXXX (2026).
+  https://doi.org/10.1063/5.0350289
+- **Software (v1.0.0):** T. A. Mehlhorn, M. F. Gu, and I. Golovkin,
+  *dedx-erpa/dedx: e-RPA/LDA ion stopping-power code*, Zenodo (2026).
+  https://doi.org/10.5281/zenodo.23519878
+  (all versions: https://doi.org/10.5281/zenodo.23519877)
+
+A machine-readable `CITATION.cff` is included, so GitHub's "Cite this repository"
+button and most reference managers can generate these automatically.
+
+Please also cite the underlying methods. The electronic stopping is the eRPA model
+of P. Wang, T. A. Mehlhorn, and J. J. MacFarlane, *Phys. Plasmas* **5**, 2977 (1998).
+The cold-insulator band-gap correction and the nuclear/ion stopping (Faussurier,
+Blancard & Gauthier, *Phys. Plasmas* **20**, 012705, 2013) are described in
+`nuclear_model_notes.md` and the manuscript drafts under `docs/`.
 
 License  
 
