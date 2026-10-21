@@ -19,7 +19,7 @@
       "orcid": "0000-0003-2350-8168"
     }
   ],
-  "license": "GPL-3.0-only",
+  "license": "GPL-3.0-or-later",
   "keywords": [
     "stopping power",
     "random phase approximation",
