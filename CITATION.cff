@@ -26,7 +26,7 @@ authors:
     affiliation: "Prism Computational Sciences, Inc., Madison, Wisconsin, USA"
 version: "1.0.0"
 date-released: "2026-10-20"
-license: GPL-3.0-only
+license: GPL-3.0-or-later
 repository-code: "https://github.com/dedx-erpa/dedx"
 url: "https://github.com/dedx-erpa/dedx"
 keywords:
