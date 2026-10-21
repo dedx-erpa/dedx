@@ -1,6 +1,6 @@
 dedx-erpa  
 A package for ion beam stopping power calculations for plasma targets.
-[![DOI](https://zenodo.org/badge/551664720.svg)](https://doi.org/10.5281/zenodo.23519877)
+	[![DOI](https://zenodo.org/badge/551664720.svg)](https://doi.org/10.5281/zenodo.23519877)
 
 Contents:  
 1. dief.py, for computing RPA dielectric functions, and stopping powers of  
